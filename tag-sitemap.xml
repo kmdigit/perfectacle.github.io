@@ -192,14 +192,14 @@
     </url>
 
     <url>
-        <loc>https://perfectacle.github.io/tags/%EB%B0%98%EB%B3%B5%EB%AC%B8/</loc>
+        <loc>https://perfectacle.github.io/tags/%EB%B0%B0%EC%97%B4/</loc>
         <lastmod>2019-03-10T07:22:47.923Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>https://perfectacle.github.io/tags/%EB%B0%B0%EC%97%B4/</loc>
+        <loc>https://perfectacle.github.io/tags/%EB%B0%98%EB%B3%B5%EB%AC%B8/</loc>
         <lastmod>2019-03-10T07:22:47.923Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -1474,21 +1474,21 @@
 
     <url>
         <loc>https://perfectacle.github.io/tags/Java/</loc>
-        <lastmod>2019-05-06T17:07:18.217Z</lastmod>
+        <lastmod>2019-05-06T17:21:27.269Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://perfectacle.github.io/tags/JVM/</loc>
-        <lastmod>2019-05-06T17:07:18.217Z</lastmod>
+        <lastmod>2019-05-06T17:21:27.269Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://perfectacle.github.io/tags/GC/</loc>
-        <lastmod>2019-05-06T17:07:18.217Z</lastmod>
+        <lastmod>2019-05-06T17:21:27.269Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

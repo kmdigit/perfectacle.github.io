@@ -20,7 +20,7 @@
 <meta property="og:description" content="읽기 전 주의사항(그림을 보는 법)그림을 그리다보니 Stack에 있는 동그라미 모양과 힙 메모리에 있는 동그라미 모양이 동일한 그림들이 많이 있습니다.이건 둘이 동일한 메모리를 의미하는 게 아니라 그냥 스택에서 힙을 참조한다는 걸 그린 건데,사실 둘의 모양을 다르게 그려야하는데 아무 생각없이 복붙해서 그리다보니 이렇게 그리게 되었고…되돌리기에는 너무">
 <meta property="og:locale" content="ko">
 <meta property="og:image" content="https://perfectacle.github.io/2019/05/07/jvm-gc-basic/thumb.png">
-<meta property="og:updated_time" content="2019-05-06T17:07:18.217Z">
+<meta property="og:updated_time" content="2019-05-06T17:21:27.269Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(JVM) Garbage Collection Basic">
 <meta name="twitter:description" content="읽기 전 주의사항(그림을 보는 법)그림을 그리다보니 Stack에 있는 동그라미 모양과 힙 메모리에 있는 동그라미 모양이 동일한 그림들이 많이 있습니다.이건 둘이 동일한 메모리를 의미하는 게 아니라 그냥 스택에서 힙을 참조한다는 걸 그린 건데,사실 둘의 모양을 다르게 그려야하는데 아무 생각없이 복붙해서 그리다보니 이렇게 그리게 되었고…되돌리기에는 너무">
@@ -255,10 +255,10 @@ ga('send', 'pageview');
 </ul>
 <h2 id="Metadata"><a href="#Metadata" class="headerlink" title="Metadata"></a>Metadata</h2><p>자바 8부터 PermGen의 역할을 Metadata 영역에서 맡기 시작했고 Native 영역으로 옮겨졌다. (즉 OS에서 관리한다는 의미)<br>PermGen 중에 일부만 Metadata 영역에서 맡기 시작했고, 상수풀이나 static 변수는 Heap 메모리로 옮겨져왔다.<br>즉, 개발자가 실수하기 쉽거나 변경이 잦은 내용들은 힙 메모리로 끌고와서 GC의 대상이 되게 하고, 정말 변경이 될 가능성이 적은 내용들만 Native 영역으로 옮겨버렸다.<br>문제는 Native 영역은 dump를 떠도 안 나와서 분석하기 힘들다는데 이럴 일은 아마 거의 없을 것이다…<br>Metadata에 대한 관리는 OS에서 함으로 믿고 맡겨도 된다고 생각하지만(개발자가 직접하는 것보다 낫지 않을까?),<br>혹시 이 쪽을 튜닝해야하거나 OOME(java.lang.OutOfMemoryError: Metadata space)가 발생한 경우에는 -XX:MetaspaceSize와 -XX:MaxMetaspaceSize 파라미터를 사용해보자.</p>
 <h2 id="OutOfMemoryException"><a href="#OutOfMemoryException" class="headerlink" title="OutOfMemoryException"></a>OutOfMemoryException</h2><p>주로 OOME라고 줄여부르며 메모리 공간이 부족해서 나는 예외로 어플리케이션 자체가 뻗는 현상이 발생한다.<br>이 예외가 발생했을 때는 메모리 릭(메모리 결함)이 발생한 경우이고 Heap 메모리나 PermGen(Metaspace) 등등의 영역이 부족할 때 발생하는데<br>어떤 메모리가 부족한 건지, 아니면 왜 이 오류가 났는지 Stacktrace를 찍고 사망한다.</p>
-<p>여기서는 힙 메모리가 부족해서 OOME가 발생한 경우의 원인에 대해서만 설명하겠다.<br>우선 메모리가 부족하면 가비지 컬렉터는 힙메모리의 가비지 컬렉션을 수행한다.<br>가비지 컬렉션을 수행했음에도 불구하고 새로운 객체를 더이상 할당할 수 없는 경우에 OOME가 발생하게 된다.<br>이 때는 아주 급한 경우에는 일단 -Xmx와 -Xms로 메모리를 늘리고 보고,<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=<span class="variable">$&#123;PATH&#125;</span>/<span class="variable">$&#123;FILE_NAME&#125;</span>.hprof</span><br></pre></td></tr></table></figure></p>
-<p><img src="mat.png" alt="위 두가지 설정을 주고 실행해서 재발하면 힙덤프를 생성하거나 아니면 jmap 등등으로 살아있는 서버의 힙덤프를 떠서 어디서 메모리 릭이 발생했는지 Eclipse MAT 등등으로 분석하거나"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-Dcom.sun.management.jmxremote</span><br><span class="line">-Dcom.sun.management.jmxremote.port=<span class="variable">$&#123;JMX_PORT&#125;</span></span><br><span class="line">-Dcom.sun.management.jmxremote.authenticate=<span class="literal">false</span></span><br><span class="line">-Dcom.sun.management.jmxremote.ssl=<span class="literal">false</span></span><br><span class="line">-Dcom.sun.management.jmxremote.rmi.port=<span class="variable">$&#123;RMI_PORT&#125;</span></span><br><span class="line">-Djava.rmi.server.hostname=<span class="variable">$&#123;HOST_NAME&#125;</span></span><br></pre></td></tr></table></figure>
-<p><img src="visual-vm.png" alt="위 설정 등등을 줘서 VisualVM으로 서버에 실제로 떠있는 어플리케이션 등등을 모니터링하는 방법이 있다."></p>
+<p>여기서는 힙 메모리가 부족해서 OOME가 발생한 경우의 원인에 대해서만 설명하겠다.<br>우선 메모리가 부족하면 가비지 컬렉터는 힙메모리의 가비지 컬렉션을 수행한다.<br>가비지 컬렉션을 수행했음에도 불구하고 새로운 객체를 더이상 할당할 수 없는 경우에 OOME가 발생하게 된다.<br>이 때는 아주 급한 경우에는 일단 -Xmx와 -Xms로 메모리를 늘리고 보고,<br><img src="mat.png" alt=""><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:+HeapDumpOnOutOfMemoryError </span><br><span class="line">-XX:HeapDumpPath=<span class="variable">$&#123;PATH&#125;</span>/<span class="variable">$&#123;FILE_NAME&#125;</span>.hprof</span><br></pre></td></tr></table></figure></p>
+<p>위 두가지 설정을 주고 실행해서 재발하면 힙덤프를 생성하거나 아니면<br>jmap 등등으로 살아있는 서버의 힙덤프를 떠서 어디서 메모리 릭이 발생했는지 Eclipse MAT 등등으로 분석하거나</p>
+<p><img src="visual-vm.png" alt=""><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-Dcom.sun.management.jmxremote</span><br><span class="line">-Dcom.sun.management.jmxremote.port=<span class="variable">$&#123;JMX_PORT&#125;</span></span><br><span class="line">-Dcom.sun.management.jmxremote.authenticate=<span class="literal">false</span></span><br><span class="line">-Dcom.sun.management.jmxremote.ssl=<span class="literal">false</span></span><br><span class="line">-Dcom.sun.management.jmxremote.rmi.port=<span class="variable">$&#123;RMI_PORT&#125;</span></span><br><span class="line">-Djava.rmi.server.hostname=<span class="variable">$&#123;HOST_NAME&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>위 설정 등등을 줘서 VisualVM으로 서버에 실제로 떠있는 어플리케이션 등등을 모니터링하는 방법이 있다.</p>
 <h2 id="알아두면-좋을-상식"><a href="#알아두면-좋을-상식" class="headerlink" title="알아두면 좋을 상식"></a>알아두면 좋을 상식</h2><ul>
 <li>Hotspot VM의 GC는 Arena라는 메모리 영역에서 작동한다.</li>
 <li>Hotspot VM은 시작 시 메모리를 유저 공간에 할당/관리한다.<br>따라서 힙 메모리를 관리할 때 시스템 콜을 하지 않으므로 커널 공간으로 컨텍스트 스위칭을 하지 않아서 성능 향상에 도움이 된다.</li>
@@ -285,7 +285,7 @@ ga('send', 'pageview');
 
 
 
-    <a data-url="https://perfectacle.github.io/2019/05/07/jvm-gc-basic/" data-id="cjvcmbii5015w2y4qsz8dqngz" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+    <a data-url="https://perfectacle.github.io/2019/05/07/jvm-gc-basic/" data-id="cjvcmu0ch01648x4qc3muyxjg" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
