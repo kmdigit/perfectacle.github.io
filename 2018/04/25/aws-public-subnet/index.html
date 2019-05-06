@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>(AWS) Public Subnet | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="AWS,VPC,Network,Subnet">
+    
+    <meta name="description" content="Subnet서브넷이란 Sub Network, 네트워크의 서브, 메인 네트워크를 쪼갰다고 보면 된다.AWS 관점에서 봤을 때 메인 네트워크는 VPC라고 보면 된다.     Public SubnetPublic Subnet이란 외부에서 접근이 가능한 네트워크 정도로 이해하면 될 것 같다. Public Subnet을 만드려면 AWS 콘솔에서 VPC 서비스로">
+<meta name="keywords" content="AWS,VPC,Network,Subnet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(AWS) Public Subnet">
+<meta property="og:url" content="https://perfectacle.github.io/2018/04/25/aws-public-subnet/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="Subnet서브넷이란 Sub Network, 네트워크의 서브, 메인 네트워크를 쪼갰다고 보면 된다.AWS 관점에서 봤을 때 메인 네트워크는 VPC라고 보면 된다.     Public SubnetPublic Subnet이란 외부에서 접근이 가능한 네트워크 정도로 이해하면 될 것 같다. Public Subnet을 만드려면 AWS 콘솔에서 VPC 서비스로">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2018/04/25/aws-public-subnet/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.032Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(AWS) Public Subnet">
+<meta name="twitter:description" content="Subnet서브넷이란 Sub Network, 네트워크의 서브, 메인 네트워크를 쪼갰다고 보면 된다.AWS 관점에서 봤을 때 메인 네트워크는 VPC라고 보면 된다.     Public SubnetPublic Subnet이란 외부에서 접근이 가능한 네트워크 정도로 이해하면 될 것 같다. Public Subnet을 만드려면 AWS 콘솔에서 VPC 서비스로">
+<meta name="twitter:image" content="https://perfectacle.github.io/2018/04/25/aws-public-subnet/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2018/04/25/aws-public-subnet/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Middle-end/">Middle-end</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Middle-end/DevOps/">DevOps</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-aws-public-subnet" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        (AWS) Public Subnet
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2018/04/25/aws-public-subnet/" class="article-date">
+            <time datetime="2018-04-24T21:01:08.000Z" itemprop="datePublished">2018-04-25</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/AWS/">AWS</a>, <a class="tag-link" href="/tags/Network/">Network</a>, <a class="tag-link" href="/tags/Subnet/">Subnet</a>, <a class="tag-link" href="/tags/VPC/">VPC</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumb.png" alt="">  </p>
+<h2 id="Subnet"><a href="#Subnet" class="headerlink" title="Subnet"></a>Subnet</h2><p>서브넷이란 Sub Network, 네트워크의 서브, 메인 네트워크를 쪼갰다고 보면 된다.<br>AWS 관점에서 봤을 때 메인 네트워크는 <a href="/2018/04/25/aws-vpc">VPC</a>라고 보면 된다.    </p>
+<h3 id="Public-Subnet"><a href="#Public-Subnet" class="headerlink" title="Public Subnet"></a>Public Subnet</h3><p>Public Subnet이란 <strong>외부에서 접근이 가능한 네트워크</strong> 정도로 이해하면 될 것 같다.</p>
+<p>Public Subnet을 만드려면 AWS 콘솔에서 VPC 서비스로 이동해서 좌측 탭 중에 Subnets를 클릭하고, Create Subnet를 클릭한다.</p>
+<p><img src="create-subnet.png" alt="subnet 생성 화면"><br>Name tag를 정하고 어떤 VPC에 Subnet을 생성할 것인지 선택하면 된다.<br>VPC가 Region에 생성되는 것에 반해 Subnet은 어떤 <a href="https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions-availability-zones" rel="external nofollow noopener noreferrer" target="_blank">AZ(Availability Zone)</a>에 생성될 것인지도 정해야한다.<br>따라서 AZ가 다운돼서 장애가 발생하는 것을 방지하려면 Multi AZ로 Subnet을 생성해야하지만, 포스트에서는 단일 AZ로 진행하도록 하겠다.<br>그리고 Subnet의 <a href="https://ko.wikipedia.org/wiki/%EC%82%AC%EC%9D%B4%EB%8D%94_(%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%82%B9)" target="_blank" rel="external nofollow noopener noreferrer">CIDR Block</a>을 지정해야하는데,<br>Subnet은 VPC의 Subset이기 때문에 VPC의 cidr block을 초과해서 정할 수 없다.<br>또한 미리 생성한 Subnet의 cidr block과 겹쳐서도 안 된다.<br><a href="https://ko.wikipedia.org/wiki/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC_%ED%81%B4%EB%9E%98%EC%8A%A4" rel="external nofollow noopener noreferrer" target="_blank">ip class</a>를 참고해서 네트워크 규모에 따라서 cidr block을 설정하면 된다.  </p>
+<p><code>또한 서브넷 내의 리소스(EC2 인스턴스, ELB 등등)는 무조건 private ip를 가지는데, private ip는 고정할 수 없고,
+생성될 때 서브넷의 cidr block 내의 ip가 랜덤으로 할당된다.</code></p>
+<p><img src="enable-auto-assign-public-ip.png" alt=""><br>기본적으로 서브넷에는 설정에는 서브넷 내의 리소스에 대해 public ip를 자동으로 할당하지 않게 설정돼있다.<br>우리는 만드는 목적 자체가 public subnet이기 때문에 public ip를 자동으로 할당하도록 설정하자.</p>
+<h3 id="Internet-Gateway"><a href="#Internet-Gateway" class="headerlink" title="Internet Gateway"></a>Internet Gateway</h3><p>Internet Gateway는 VPC의 문지기와도 같은 역할을 한다.<br>VPC 외부에서 접근할 때 항상 Internet Gateway를 거쳐서 접근하게 된다.<br>따라서 Public Subnet을 구성하기 위해서는 Internet Gateway를 무조건 만들어야한다.<br>VPC 서비스 좌측 탭 중에 Internet Gateways를 클릭하고 Create internet gateway를 클릭하고 Name tag를 입력해서 Internet Gateway를 생성하자.  </p>
+<p><img src="internet-gateway.png" alt=""><br>Internet Gateway는 기본적으로 vpc에 안 붙어있기 때문에 vpc에 붙여주자.<br>여기서 끝이 아니고, Subnet에 Route Table을 설정해줘야한다.  </p>
+<h3 id="Route-Table"><a href="#Route-Table" class="headerlink" title="Route Table"></a>Route Table</h3><p>Route Table이란 어떤 IP 주소로 가야할 때 어디로 가야하는지를 나타낸 경로를 뜻한다.<br>기본적으로 VPC를 생성하면 Main Route Table이 생성되고, 라우트 테이블을 설정하지 않은 서브넷들은 암묵적으로 메인 라우트 테이블이 설정된다.<br>이 포스트에서는 메인 라우트 테이블을 수정하도록 하겠다.  </p>
+<p>Route Table을 수정하려면 AWS 콘솔에서 Route Tables 서비스로 이동해서 해당 vpc의 메인 라우트 테이블을 선택하고, Edit 버튼을 클릭한다.<br><img src="main-route-table.png" alt=""><br>우선 메인 라우트 테이블의 Destination은 vpc의 cidr block이 할당돼있고, target은 local로 돼있다.<br>vpc 내부 자원에 대해서는 cidr block 범위에 해당하는 private ip가 할당돼있기 마련이다.<br>따라서 cidr block 내의 ip의 경우에는 local, vpc 내부에서 자원을 찾을 수 있다는 뜻이다.  </p>
+<p>우리는 외부와 통신을 해야하기 때문에 라우트 테이블에 인터넷 게이트웨이를 붙어야하기 때문에 Edit 버튼을 누르고 아래와 같이 설정하면 된다.<br><img src="main-route-table-edit.png" alt=""><br>0.0.0.0/0, 즉 모든 ip에 대해서 인터넷 게이트웨이로 향하게 끔 설정을 했다.  </p>
+<p>목적지 ip가 cidr block 내의 private ip(10.0.0.0/16)인 경우에 대해서는 vpc 내부(local)에서 자원을 찾게 끔 설정한 것이고,<br>목적지 ip가 cidr block 내의 private ip(10.0.0.0/16)가 아닌 경우(0.0.0.0/0)에 대해서는 인터넷 게이트웨이를 통해서 vpc 외부로 내보내는 것이다.  </p>
+<h3 id="EC2-인스턴스-생성"><a href="#EC2-인스턴스-생성" class="headerlink" title="EC2 인스턴스 생성"></a>EC2 인스턴스 생성</h3><p>다른 리소스(ELB 등등)을 해도 되지만 포스트에서는 가장 간단한 <a href="https://aws.amazon.com/ko/ec2/" rel="external nofollow noopener noreferrer" target="_blank">EC2</a>로 선택했다.<br>EC2 인스턴스는 간단하게 설명하면 그냥 서버 장비 한 대라고 생각하면 된다.  </p>
+<p>AWS 콘솔에서 EC2 서비스로 이동해서 Launch Instance를 클릭하자.<br>입맛에 맞게 설정을 하면 되는데, Step 2에서 Review and Launch 대신에 Configure Instance Details를 선택해주자.  </p>
+<p><img src="ec2-subnet-setting.png" alt=""><br>Step3가 핵심이다.<br>위에서 만든 VPC와 Public Subnet을 설정하고, public ip 할당 부분을 enable로 하던가,<br>아니면 서브넷에 자동으로 public ip 할당 설정이 돼있다면 Use subnet setting을 그대로 내비두면 된다.  </p>
+<p>그 이후에는 입맛에 맞게 인스턴스를 생성하면 외부에서 접근 가능한 리소스를 만든 셈이다.  </p>
+<h3 id="외부에서-접근-가능하게-하기-위한-조건"><a href="#외부에서-접근-가능하게-하기-위한-조건" class="headerlink" title="외부에서 접근 가능하게 하기 위한 조건"></a>외부에서 접근 가능하게 하기 위한 조건</h3><ol>
+<li>Subnet에 설정된 Route Table에 Internet Gateway가 설정돼있어야한다. (Public Subnet)  </li>
+<li>결국 외부에서 접근하는 IP 주소는 Subnet 내의 리소스로 접근하기 때문에 리소스를 만들 때는 꼭 public ip를 할당해야한다.</li>
+</ol>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2018/04/25/aws-public-subnet/" data-id="cjvclpp29002xp04q1zd2olho" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2018/04/25/aws-public-subnet/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

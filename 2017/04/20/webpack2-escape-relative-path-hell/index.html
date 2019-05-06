@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>(Webpack 2) 상대경로 헬파티에서 탈출하기 | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="npm,Node.js,Webpack2">
+    
+    <meta name="description" content="상대경로 헬파티/app/src/lib/lib.js에는 아래와 같은 변수가 들어가있다.1export const num = 2; /app/src/lib/lib.scss에는 아래와 같은 변수가 들어가있다.1$var: 100px; 이제 이 변수를 사용하는 모듈이 /app/src/a/b/c/d/e/f 폴더 안에 있는 녀석들이다./app/src/a/b/c/d/e/f/">
+<meta name="keywords" content="npm,Node.js,Webpack2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(Webpack 2) 상대경로 헬파티에서 탈출하기">
+<meta property="og:url" content="https://perfectacle.github.io/2017/04/20/webpack2-escape-relative-path-hell/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="상대경로 헬파티/app/src/lib/lib.js에는 아래와 같은 변수가 들어가있다.1export const num = 2; /app/src/lib/lib.scss에는 아래와 같은 변수가 들어가있다.1$var: 100px; 이제 이 변수를 사용하는 모듈이 /app/src/a/b/c/d/e/f 폴더 안에 있는 녀석들이다./app/src/a/b/c/d/e/f/">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2017/04/20/webpack2-escape-relative-path-hell/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.668Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(Webpack 2) 상대경로 헬파티에서 탈출하기">
+<meta name="twitter:description" content="상대경로 헬파티/app/src/lib/lib.js에는 아래와 같은 변수가 들어가있다.1export const num = 2; /app/src/lib/lib.scss에는 아래와 같은 변수가 들어가있다.1$var: 100px; 이제 이 변수를 사용하는 모듈이 /app/src/a/b/c/d/e/f 폴더 안에 있는 녀석들이다./app/src/a/b/c/d/e/f/">
+<meta name="twitter:image" content="https://perfectacle.github.io/2017/04/20/webpack2-escape-relative-path-hell/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2017/04/20/webpack2-escape-relative-path-hell/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Front-end/">Front-end</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Front-end/Webpack/">Webpack</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-webpack2-escape-relative-path-hell" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        (Webpack 2) 상대경로 헬파티에서 탈출하기
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2017/04/20/webpack2-escape-relative-path-hell/" class="article-date">
+            <time datetime="2017-04-20T00:37:49.000Z" itemprop="datePublished">2017-04-20</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Node-js/">Node.js</a>, <a class="tag-link" href="/tags/Webpack2/">Webpack2</a>, <a class="tag-link" href="/tags/npm/">npm</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="상대경로-헬파티"><a href="#상대경로-헬파티" class="headerlink" title="상대경로 헬파티"></a>상대경로 헬파티</h2><p><img src="thumb.png" alt="예제를 위해 과장한 폴더 구조"><br>/app/src/lib/lib.js에는 아래와 같은 변수가 들어가있다.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> num = <span class="number">2</span>;</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/lib/lib.scss에는 아래와 같은 변수가 들어가있다.<br><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$var</span>: <span class="number">100px</span>;</span><br></pre></td></tr></table></figure></p>
+<p>이제 이 변수를 사용하는 모듈이 /app/src/a/b/c/d/e/f 폴더 안에 있는 녀석들이다.<br>/app/src/a/b/c/d/e/f/a.js 파일의 내용은 아래와 같다.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;num&#125; <span class="keyword">from</span> <span class="string">'../../../../../../lib/lib'</span>;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> num2 = num*num;</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/a/b/c/d/e/f/a.scss 파일의 내용은 아래와 같다.<br><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">import</span> <span class="string">'../../../../../../lib/lib'</span>;</span><br><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="variable">$var</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="variable">$var</span>;</span><br><span class="line">  <span class="attribute">background-color</span>: black;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>자동 완성이 되는 IDE의 경우에는 다행이지만… 그렇지 않은 에디터를 사용하는 경우에는 헬파티가 열리게 된다.<br>오늘은 이러한 문제점을 해결해보고자 한다!  </p>
+<h2 id="프로젝트-세팅"><a href="#프로젝트-세팅" class="headerlink" title="프로젝트 세팅"></a>프로젝트 세팅</h2><p><img src="dir.png" alt="프로젝트 구조">  </p>
+<p>일단 프로젝트로 쓸 디렉토리를 아무거나 만들고 터미널로 해당 디렉토리로 이동 후 다음 명령어를 쳐서 npm을 초기화 시키고 패키지들을 설치하자.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm init --y</span><br><span class="line">npm i -S webpack html-webpack-plugin style-loader css-loader node-sass sass-loader</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>웹팩 2에서는 바벨 없이도 import/export 문법을 쓸 수 있게 됐다!</li>
+<li>html-webpack-plugin<br>빌드한 후에 소스 디렉토리에 있는 html 파일을 dist 디렉토리로 옮기기 위해 사용.<br>script, css 파일 자동 삽입 및 템플릿 엔진 사용, html minify 등등 다양한 기능 제공.  </li>
+<li>style-loader css-loader<br>css 파일을 모듈로써 사용하기 위해 사용.  </li>
+<li>node-sass sass-loader<br>sass, scss 파일을 모듈로써 사용하기 위해 사용.</li>
+</ul>
+<p>프로젝트 디렉토리에 웹팩 설정 파일인 webpack.config.js 파일을 만들고 아래와 같이 적어주자.<br>웹팩 1은 <a href="https://webpack.github.io/docs/configuration.html#resolve" rel="external nofollow noopener noreferrer" target="_blank">Configuration - Webpack</a> 링크를 참조하자.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>);</span><br><span class="line"><span class="keyword">const</span> HtmlWebpackPlugin = <span class="built_in">require</span>(<span class="string">'html-webpack-plugin'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ROOT = <span class="string">'./app/src'</span>;</span><br><span class="line"><span class="keyword">const</span> DIST = <span class="string">'./app/dist'</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: &#123;</span><br><span class="line">    app: <span class="string">`<span class="subst">$&#123;ROOT&#125;</span>/index`</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    filename: <span class="string">'bundle.js'</span>,</span><br><span class="line">    path: <span class="string">`<span class="subst">$&#123;__dirname&#125;</span>/<span class="subst">$&#123;DIST&#125;</span>`</span></span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="keyword">new</span> HtmlWebpackPlugin(&#123;</span><br><span class="line">      template: <span class="string">`<span class="subst">$&#123;ROOT&#125;</span>/index.html`</span></span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="keyword">new</span> webpack.DefinePlugin(&#123;</span><br><span class="line">      <span class="string">'process.env'</span>: &#123;</span><br><span class="line">        NODE_ENV: <span class="built_in">JSON</span>.stringify(<span class="string">'production'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  ],</span><br><span class="line">  <span class="built_in">module</span>: &#123;</span><br><span class="line">    rules: [&#123;</span><br><span class="line">      test: <span class="regexp">/\.css$/</span>,</span><br><span class="line">      use: [<span class="string">'style-loader'</span>, <span class="string">'css-loader'</span>]</span><br><span class="line">    &#125;, &#123;</span><br><span class="line">      test: <span class="regexp">/\.scss$/</span>,</span><br><span class="line">      use: [<span class="string">'style-loader'</span>, <span class="string">'css-loader'</span>, &#123;</span><br><span class="line">        loader: <span class="string">'sass-loader'</span>,</span><br><span class="line">        <span class="comment">// 사스에서 상대경로 헬파티를 구제해줄 속성</span></span><br><span class="line">        options: &#123;</span><br><span class="line">          includePaths: [ROOT]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;]</span><br><span class="line">    &#125;]</span><br><span class="line">  &#125;,</span><br><span class="line">  resolve: &#123;</span><br><span class="line">    <span class="comment">// es6 native module에서 상대경로 헬파티를 구제해줄 속성</span></span><br><span class="line">    modules: [ROOT, <span class="string">'./node_modules'</span>]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DeprecationWarning: loaderUtils.parseQuery() received a non-string value which can be problematic, see https://github.com/webpack/loader-utils/issues/56</span></span><br><span class="line"><span class="comment">// parseQuery() will be replaced with getOptions() in the next major version of loader-utils.</span></span><br><span class="line"><span class="comment">// 위와 같이 로더 개발자를 위한 로그가 뜨는 게 보기 싫어서 추가.</span></span><br><span class="line">process.noDeprecation = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/lib/lib.js은 아래와 같이 만들어주자.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> num = <span class="number">2</span>;</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/lib/lib.scss도 아래와 같이 만들어주자.<br><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$var</span>: <span class="number">100px</span>;</span><br></pre></td></tr></table></figure></p>
+<p>이제 /app/src/a/b/c/d/e/f/a.js를 아래와 같이 만들어주자.<br>상대 경로의 헬파티로부터 벗어나게 된다.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;num&#125; <span class="keyword">from</span> <span class="string">'lib/lib'</span>;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> num2 = num*num;</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/a/b/c/d/e/f/a.scss도 아래와 같이 만들어주자.<br>역시 상대 경로의 헬파티로부터 벗어나게 된다.<br><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@<span class="keyword">import</span> <span class="string">'lib/lib'</span>;</span><br><span class="line"><span class="selector-tag">div</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="variable">$var</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="variable">$var</span>;</span><br><span class="line">  <span class="attribute">background-color</span>: black;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/index.js는 아래와 같이 만들어주자.<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;num2&#125; <span class="keyword">from</span> <span class="string">'./a/b/c/d/e/f/a'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'./a/b/c/d/e/f/a.scss'</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(num2);</span><br></pre></td></tr></table></figure></p>
+<p>/app/src/index.html은 아래와 같이 만들어주자.<br>번들 된 js 경로를 입력하지 않아도 html-webpack-plugin이 알아서 삽입해준다.<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"ko"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>package.json에 빌드 스크립트를 넣어주자.<br>scripts 부분에 넣어주면 된다.<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "start": "$(npm bin)/webpack"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>그리고 다음과 같이 빌드를 해보자.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm start</span><br></pre></td></tr></table></figure></p>
+<p>그리고 나서 /app/dist/index.html을 열어보면 다음과 같이 원하는 결과를 얻을 수 있다.<br><img src="result.png" alt=""><br>100x100의 까만 div와 2*2=4의 결과를 콘솔창에서 볼 수 있다.  </p>
+<h2 id="갓텔리제이-짱짱맨"><a href="#갓텔리제이-짱짱맨" class="headerlink" title="갓텔리제이 짱짱맨"></a>갓텔리제이 짱짱맨</h2><p><img src="nono.png" alt="자동 완성이 지원되질 않는다."><br>한 가지 아쉬운 점이라면 IDE는 웹팩에서 정해준 루트 경로를 이해하지 못한다.<br>따라서 자동완성과 인덱싱(폴더가 존재하는 경로나 파일로 이동)을 지원하지 않는다.<br><img src="gottellij.png" alt="하지만 우리의 IntelliJ가 최근에 업데이트 되면서 이러한 문제를 깔끔히 해결해주었다."><br>아마 Jet Brains의 IDE(Webstorm, PHPStorm 등등)에서는 다 지원될 것이다.<br>최신 버전으로 업데이트 한 후에 /app/src 경로를 Resource Root로 지정해주자.<br>Source Root로 지정하면 sass에서 모듈을 인덱싱하지 못한다.<br><img src="markDir.png" alt=""><br><img src="01.png" alt=""><br><img src="02.png" alt=""><br><img src="03.png" alt=""><br><img src="04.png" alt=""><br>경로, 변수 자동 완성 및 인덱싱까지 너무 잘 돼서 개발자에게 뽀뽀 해주고 싶은 심정이다.<br>다른 IDE는 어떤지 모르겠지만 역시 갓텔리제이라 할만하다.</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2017/04/20/webpack2-escape-relative-path-hell/" data-id="cjvclpp94008up04qiw8sxbuc" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2017/04/20/webpack2-escape-relative-path-hell/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

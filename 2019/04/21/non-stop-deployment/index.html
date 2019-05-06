@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>무중단 배포란...? | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Deployment">
+    
+    <meta name="description" content="실제로 우리가 간단하게 서버를 배포하는 시나리오를 생각해보자.  80포트(혹은 다른 포트)에 우리의 서버를 띄운다. 새롭게 배포할 내용이 있다고 하면 포트가 충돌나면 안 되기 때문에 서버를 다운시킨다.   (옵션) 유저의 이탈을 방지하고자 공사중 이미지를 띄운다.   80포트(혹은 다른 포트)에 새롭게 배포할 서버를 띄운다.  만약 서버가 뜨는데 30초가">
+<meta name="keywords" content="Deployment">
+<meta property="og:type" content="article">
+<meta property="og:title" content="무중단 배포란...?">
+<meta property="og:url" content="https://perfectacle.github.io/2019/04/21/non-stop-deployment/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="실제로 우리가 간단하게 서버를 배포하는 시나리오를 생각해보자.  80포트(혹은 다른 포트)에 우리의 서버를 띄운다. 새롭게 배포할 내용이 있다고 하면 포트가 충돌나면 안 되기 때문에 서버를 다운시킨다.   (옵션) 유저의 이탈을 방지하고자 공사중 이미지를 띄운다.   80포트(혹은 다른 포트)에 새롭게 배포할 서버를 띄운다.  만약 서버가 뜨는데 30초가">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2019/04/21/non-stop-deployment/thumbs.jpg">
+<meta property="og:updated_time" content="2019-04-21T14:18:50.982Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="무중단 배포란...?">
+<meta name="twitter:description" content="실제로 우리가 간단하게 서버를 배포하는 시나리오를 생각해보자.  80포트(혹은 다른 포트)에 우리의 서버를 띄운다. 새롭게 배포할 내용이 있다고 하면 포트가 충돌나면 안 되기 때문에 서버를 다운시킨다.   (옵션) 유저의 이탈을 방지하고자 공사중 이미지를 띄운다.   80포트(혹은 다른 포트)에 새롭게 배포할 서버를 띄운다.  만약 서버가 뜨는데 30초가">
+<meta name="twitter:image" content="https://perfectacle.github.io/2019/04/21/non-stop-deployment/thumbs.jpg">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2019/04/21/non-stop-deployment/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Middle-end/">Middle-end</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Middle-end/DevOps/">DevOps</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-non-stop-deployment" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        무중단 배포란...?
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2019/04/21/non-stop-deployment/" class="article-date">
+            <time datetime="2019-04-21T14:03:23.000Z" itemprop="datePublished">2019-04-21</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Deployment/">Deployment</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumbs.jpg" alt=""></p>
+<p>실제로 우리가 간단하게 서버를 배포하는 시나리오를 생각해보자.</p>
+<ol>
+<li>80포트(혹은 다른 포트)에 우리의 서버를 띄운다.</li>
+<li>새롭게 배포할 내용이 있다고 하면 포트가 충돌나면 안 되기 때문에 서버를 다운시킨다.  </li>
+<li>(옵션) 유저의 이탈을 방지하고자 공사중 이미지를 띄운다.  </li>
+<li>80포트(혹은 다른 포트)에 새롭게 배포할 서버를 띄운다.</li>
+</ol>
+<p>만약 서버가 뜨는데 30초가 걸린다고 하면 최소 30+@초만큼 다운타임(유저에게 서비스가 불가능한 시간)이 발생한다.<br>현대의 어플리케이션이라면 유저에게 최상의 경험을 제공해주기위해 이런 다운타임이 없는 무중단 배포를 지원해야한다.  </p>
+<h3 id="필요-조건"><a href="#필요-조건" class="headerlink" title="필요 조건"></a>필요 조건</h3><p><strong>두 대 이상의 서버(혹은 서버 어플리케이션을 두 개)를 서비스해야한다.</strong><br>다운타임이 발생하지 않으려면 실제 서비스 중인 서버와 새롭게 배포한 서버가 동시에 존재해야한다.<br>비용을 줄이려면 배포할 때만 새롭게 서버를 띄우고 배포가 완료된 후에 기존 서버는 죽이면 된다.</p>
+<h3 id="Rolling-Deployment"><a href="#Rolling-Deployment" class="headerlink" title="Rolling Deployment"></a>Rolling Deployment</h3><p><img src="elb-basic.png" alt="SPOF를 피하려면 어플리케이션 서버는 물론이고 로드 밸런서도 이중화해야한다."><br>HA(High Availability)을 위해 프로덕션 환경은 2대 이상의 서버로 구성한다.<br>이런 환경에서 무중단 배포하기 가장 간단한 방법이 바로 Rolling 배포이다.<br>시나리오는 다음과 같다.  </p>
+<ol>
+<li>서버 1을 로드 밸런서에서 뺀다.  </li>
+<li>서버 1에 배포한다.  </li>
+<li>서버 1을 다시 로드 밸런서에 넣는다.  </li>
+<li>서버 2를 로드 밸런서에서 뺀다.  </li>
+<li>서버 2에 배포한다.  </li>
+<li>서버 2를 다시 로드 밸런서에 넣는다.</li>
+</ol>
+<p>위와 같이 하면 다운타임 없이 배포가 가능하다.<br>배포해야할 서버가 너무 많다면 1대씩 배포하면 너무 느리니 N대 단위로 배포하기도 한다.<br>하지만 배포가 끝나기 전까지는 누구는 이전 버전을 서비스 받고, 누구는 신규 버전을 서비스 받는 등의 문제가 존재한다.<br>또한 1대에 배포하는 거보다 최소 2배 이상 느리다. (아무리 못해도 2번 이상의 배포가 진행되기 때문에)</p>
+<h3 id="Canary-Deployment"><a href="#Canary-Deployment" class="headerlink" title="Canary Deployment"></a>Canary Deployment</h3><p><img src="canary.png" alt=""><br>광부들이 광산에서 유독가스가 나오는 것을 알아내기 위해서 가스에 민감한 카나리아(조류)를 광산 안에서 키웠다고 해서 유래된 배포이다.<br>소수의 유저(혹은 사내)만 사용하는 환경(Canary 환경)에 신규 버전을 배포하고 문제가 없다고 판단됐을 때 다른 모든 서버에 배포한다.<br>Canary 환경은 뭐 QA Phase가 될 수도 있고, 랜덤하게 유저를 Canary 환경으로 라우팅시킬 수도 있고 구현하기 나름이다.  </p>
+<h3 id="Blue-Green-Deployment"><a href="#Blue-Green-Deployment" class="headerlink" title="Blue/Green Deployment"></a>Blue/Green Deployment</h3><p><img src="thumbs.jpg" alt=""><br><strong>실제로 서비스 중인 환경(Blue)</strong>과 <strong>새롭게 배포할 환경(Green)</strong>을 세트로 준비해서 배포하는 방식을 말한다.<br>장점으로는 새롭게 배포할 환경에만 배포하면 되기 때문에 배포 속도가 매우 빠르다. (배포할 서버가 N대라 하더라도 N대의 Green 서버에 동시에 배포하면 되기 때문에)<br>또한 언제나 Green 환경이 떠있기 때문에 만약에 잘못된 버전으로 배포를 했을 경우에 신속하게 롤백이 가능하다. (수 백대의 서버에 거의 수 초 이내에 롤백이 가능함.)<br>물론 언제나 Green 환경이 떠있어야하기 때문에 비용이 두 배로 든다는 단점도 있다.<br>또한 Green 환경에서 Scheduler와 같은 배치성 Job이 도는 경우에 레거시 버전으로 돌기 때문에 장애가 발생할 가능성도 존재한다.<br>(이럴 때는 배포를 연속적으로 두 번 해서 Blue와 Green의 버전을 일치시키는 것 이외에는 딱히 떠오르지 않는다 ㅠㅠ…)</p>
+<p>이렇게 설명하면 이해가 잘 안 가니 그림과 함께 이해해보자.<br>(그림에서는 Nginx를 프록시 서버로 사용했지만 Apache 등등을 사용해도 무방하다.<br>또한 하나의 서버에 두 대의 어플리케이션을 띄우는 걸로 설명했지만 별도의 서버에 하나의 어플리케이션만 각각 띄워서 구성해도 된다.)</p>
+<h4 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h4><p><img src="blue-green-02.png" alt="젠킨스와 같은 CI를 사용해서 Green 환경에 배포를 완료한다."></p>
+<p><img src="blue-green-03.jpg" alt="Nginx와 같은 프록시 서버에서 80포트로 들어오면 Green 환경으로 라우팅하도록 설정한다.">  </p>
+<h4 id="Rollback"><a href="#Rollback" class="headerlink" title="Rollback"></a>Rollback</h4><p><img src="blue-green-04.jpg" alt="만약에 새로 배포한 Blue 환경에서 버그가 발생했다고 가정해보자.">  </p>
+<p><img src="blue-green-05.jpg" alt="이 때 프록시 서버에서 80포트의 라우팅을 Green 환경으로만 옮겨서 Blue와 Green을 바꾸기만 하면 롤백이 끝난다.">  </p>
+<p><img src="blue-green-06.jpg" alt="물론 Green 환경이 사망해계신 상태에서는 롤백이 불가능하다."></p>
+<p>더 자세한 설명은 <a href="https://martinfowler.com/bliki/BlueGreenDeployment.html" rel="external nofollow noopener noreferrer" target="_blank">Martin Fowler가 쓴 블로그 글</a>을 참고하자.</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2019/04/21/non-stop-deployment/" data-id="cjvclpp8l007up04qvkx3ijia" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2019/04/21/non-stop-deployment/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

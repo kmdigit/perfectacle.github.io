@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>(이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, Comparable을 구현할지 고려하라 | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Java">
+    
+    <meta name="description" content="이번 아이템은 모든 객체의 부모 클래스인 Object 클래스에 있는 메서드가 아니다.아예 동떨어진 믹스인 인터페이스인 Comparable와 해당 인터페이스의 유일한 메서드인 compareTo에 대한 내용이다.그럼에도 불구하고 이번 챕터인 ‘모든 객체의 공통 메서드’에 넣은 이유는 모든 객체에 유용하게 쓰일 수 있는 메서드이고자바 플랫폼 라이브러리의 모든">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, Comparable을 구현할지 고려하라">
+<meta property="og:url" content="https://perfectacle.github.io/2018/12/21/effective-java-ch03-item14-comparable-interface/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="이번 아이템은 모든 객체의 부모 클래스인 Object 클래스에 있는 메서드가 아니다.아예 동떨어진 믹스인 인터페이스인 Comparable와 해당 인터페이스의 유일한 메서드인 compareTo에 대한 내용이다.그럼에도 불구하고 이번 챕터인 ‘모든 객체의 공통 메서드’에 넣은 이유는 모든 객체에 유용하게 쓰일 수 있는 메서드이고자바 플랫폼 라이브러리의 모든">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2018/12/21/effective-java-ch03-item14-comparable-interface/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.251Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, Comparable을 구현할지 고려하라">
+<meta name="twitter:description" content="이번 아이템은 모든 객체의 부모 클래스인 Object 클래스에 있는 메서드가 아니다.아예 동떨어진 믹스인 인터페이스인 Comparable와 해당 인터페이스의 유일한 메서드인 compareTo에 대한 내용이다.그럼에도 불구하고 이번 챕터인 ‘모든 객체의 공통 메서드’에 넣은 이유는 모든 객체에 유용하게 쓰일 수 있는 메서드이고자바 플랫폼 라이브러리의 모든">
+<meta name="twitter:image" content="https://perfectacle.github.io/2018/12/21/effective-java-ch03-item14-comparable-interface/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2018/12/21/effective-java-ch03-item14-comparable-interface/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Note/">Note</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Note/Java/">Java</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-effective-java-ch03-item14-comparable-interface" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        (이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, Comparable을 구현할지 고려하라
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2018/12/21/effective-java-ch03-item14-comparable-interface/" class="article-date">
+            <time datetime="2018-12-21T02:00:45.000Z" itemprop="datePublished">2018-12-21</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Java/">Java</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumb.png" alt=""></p>
+<p>이번 아이템은 모든 객체의 부모 클래스인 Object 클래스에 있는 메서드가 아니다.<br>아예 동떨어진 믹스인 인터페이스인 Comparable와 해당 인터페이스의 유일한 메서드인 compareTo에 대한 내용이다.<br>그럼에도 불구하고 이번 챕터인 ‘모든 객체의 공통 메서드’에 넣은 이유는 모든 객체에 유용하게 쓰일 수 있는 메서드이고<br>자바 플랫폼 라이브러리의 모든 값 클래스와 Enum에서 해당 인터페이스를 구현했기 때문이 아닐까 싶다.<br>또한 compareTo 메서드를 쓰는 자바 API들(Arrays, Collections, TreeSet, TreeMap 등등)이 있기 때문에<br>compareTo 메서드를 잘만 쓰면 좁살만한 노력으로 코끼리만 한 큰 효과를 누린다고 책에서 얘기하고 있으니 이 장을 주의 깊게 봐야한다.</p>
+<h2 id="Comparable"><a href="#Comparable" class="headerlink" title="Comparable"></a>Comparable</h2><p>Comparable은 믹스인 인터페이스이다.<br>그럼 이 믹스인 인터페이스가 제공하는 <strong>선택적 기능</strong>은 무엇일까?<br>바로 인스턴스 사이에 <strong>순서를 비교</strong>해주는 기능을 제공해준다.  </p>
+<h3 id="규약"><a href="#규약" class="headerlink" title="규약"></a>규약</h3><p><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Comparable.html#compareTo(T" rel="external nofollow noopener noreferrer" target="_blank">compareTo 메서드 명세서</a>에 더 자세한 내용이 나와있으니 참고해보면 된다.  </p>
+<p>아래에서 나오는 sgn(표현식) 표기는 수학에서 말하는 부호 함수(signum function)을 뜻하고, 표현식의 값이 음수이면 -1, 0이면 0, 양수이면 1을 반환한다.  </p>
+<ul>
+<li>객체가 주어진 객체보다 작으면 음의 정수를, 같으면 0을, 크면 양의 정수를 반환한다.  </li>
+<li>객체와 비교할 수 없는 타입의 객체가 주어지면 ClassCastException을 던진다.  </li>
+<li>Comparable을 구현한 클래스는 <code>sgn(x.compareTo(y)) == -sgn(y.compareTo(x))</code>여야한다.<br>(따라서 x.compareTo(y)는 y.compareTo(x)가 예외를 던질 때에 한해 예외를 던져야한다.)<br>이는 대칭성을 가져야한다는 의미이다.  </li>
+<li>Comparable을 구현한 클래스는 <code>x.compareTo(y) &gt; 0</code>이고, <code>y.compareTo(z) &gt; 0</code>일 때 <code>x.compareTo(z) &gt; 0</code>이어야한다.<br>이는 추이성을 가져야한다는 의미이다.  </li>
+<li>Comparable을 구현한 클래스는 <code>x.compareTo(y) == 0</code>일 때 <code>sgn(x.compareTo(z)) == sgn(y.compareTo(z))</code>이다.  </li>
+<li><strong>필수는 아니지만 권장하는 규약이다, 이 규약을 명시하지 않을 때는 주석으로라도 그 사실을 명시를 해둬야한다.</strong><br>Comparable을 구현한 클래스는 <code>(x.compareTo(y) == 0) == (x.equals(y))</code>이다.<br>두 객체의 순서가 동일하다면 equals 메서드로 논리적 동치성을 비교했을 때도 동일해야한다는 얘기이다.</li>
+</ul>
+<p>다른 건 다 이해가 잘 되는데 마지막 규약은 왜 필수가 아닌지 이해가 되지 않을 것이다.<br>동작은 잘 하지만 어딘가 이상한 부분이 있어서 지키라고 하는 것이다.<br>뭐가 이상한지 한 번 살펴보자.<br>다음은 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/Set.html" rel="external nofollow noopener noreferrer" target="_blank">Set 인터페이스 문서</a>에 나온 내용이다.  </p>
+<blockquote>
+<p>sets contain no pair of elements e1 and e2 such that e1.equals(e2)</p>
+</blockquote>
+<p><code>e1.equals(e2)</code>와 같은 논리적 동치성이 검증된 e1과 e2의 쌍은 Set 컬렉션에서 포함하지 않는다는 내용이다.<br>이 내용 때문에 Set에는 중복을 허용하지 않는 것이다.<br>그렇다면 Set 인터페이스를 구현했고, 순서도 보장한 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/TreeSet.html" rel="external nofollow noopener noreferrer" target="_blank">SortedSet 인터페이스</a>의 경우에는 어떨까?  </p>
+<blockquote>
+<p>a sorted set performs all element comparisons using its compareTo (or compare) method</p>
+</blockquote>
+<p>SortedSet 인터페이스는 <strong>equals 메서드 대신에 compareTo(혹은 compare) 메서드를 통해 객체를 비교</strong>하고 있다.<br>이 내용이 위에 적혀있는 Set 인터페이스의 규약을 위반한 건지는 잘 모르겠다.<br>하지만 이렇게 Set 인터페이스를 준수한 SortedSet 인터페이스가 Set 인터페이스와 뭔가 엇박자가 있기 때문에 웬만하면<br>마지막 규약인 <code>(x.compareTo(y) == 0) == (x.equals(y))</code>을 지키라는 얘기이다.</p>
+<p>실제로 equals와 compareTo의 결과가 다른 BigDecimal 클래스를 통해 어떻게 동작하는지 알아보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var one1 = <span class="keyword">new</span> BigDecimal(<span class="string">"1.0"</span>);</span><br><span class="line">    <span class="keyword">final</span> var one2 = <span class="keyword">new</span> BigDecimal(<span class="string">"1.00"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// equals와 compareTo의 결과가 다르다.</span></span><br><span class="line">    assertNotEquals(one2, one1);</span><br><span class="line">    assertEquals(<span class="number">0</span>, one1.compareTo(one2));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> HashSet&lt;BigDecimal&gt; hashSet = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">    hashSet.add(one1);</span><br><span class="line">    hashSet.add(one2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> TreeSet&lt;BigDecimal&gt; treeSet = <span class="keyword">new</span> TreeSet&lt;&gt;();</span><br><span class="line">    treeSet.add(one1);</span><br><span class="line">    treeSet.add(one2);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 동일한 요소를 넣었지만 hashSet과 treeSet의 크기가 다르다.</span></span><br><span class="line">    assertNotEquals(hashSet.size(), treeSet.size());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// treeSet의 크기는 1이다.</span></span><br><span class="line">    assertEquals(<span class="number">1</span>, treeSet.size());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// compareTo 메서드를 사용하기 때문에 "1.0"과 "1.00"을 double로 바꾸면 중복이므로 처음 집어넣은 one1만 들어있다. </span></span><br><span class="line">    assertEquals(one1, treeSet.first());</span><br><span class="line">    assertNotEquals(one2, treeSet.first());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 하지만 contains 메서드를 사용하면 내부적으로 compareTo 메서드를 사용하기 때문에 둘 다 포함한다고 나온다.</span></span><br><span class="line">    assertTrue(treeSet.contains(one1));</span><br><span class="line">    assertTrue(treeSet.contains(one2));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>또한 자식 클래스에 필드를 추가한 경우에는 compareTo 메서드 규약을 지킬 수 없다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Type</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Type</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Type</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> number)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.number = number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">final</span> Type t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Integer.compare(number, t.number);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChildType</span> <span class="keyword">extends</span> <span class="title">Type</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number2;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ChildType</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> number, <span class="keyword">final</span> <span class="keyword">int</span> number2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(number);</span><br><span class="line">        <span class="keyword">this</span>.number2 = number2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">final</span> Type t)</span> </span>&#123;</span><br><span class="line">        var result = <span class="keyword">super</span>.compareTo(t);</span><br><span class="line">        <span class="keyword">if</span>(result == <span class="number">0</span> &amp;&amp; (t <span class="keyword">instanceof</span> ChildType)) &#123;</span><br><span class="line">            <span class="keyword">final</span> var child = (ChildType) t;</span><br><span class="line">            result = Integer.compare(number2, child.number2);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>위와 같이 부모 클래스 Type과 필드를 추가한 자식 클래스 ChildType이 있다고 해보자.<br>이 때 이 클래스들은 compareTo 메서드 규약을 지킬 수 있을까?<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var x = <span class="keyword">new</span> ChildType(<span class="number">3</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">final</span> var y = <span class="keyword">new</span> Type(<span class="number">3</span>);</span><br><span class="line">    <span class="keyword">final</span> var z = <span class="keyword">new</span> ChildType(<span class="number">3</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 다음 규약을 준수하는지 검증해봤는데 준수하지 못한다.</span></span><br><span class="line">    <span class="comment">// Comparable을 구현한 클래스는 `x.compareTo(y) == 0`일 때 `sgn(x.compareTo(z)) == sgn(y.compareTo(z))`이다.</span></span><br><span class="line">    assertEquals(<span class="number">0</span>, x.compareTo(y));</span><br><span class="line">    assertNotEquals(sgn(x.compareTo(z)), sgn(y.compareTo(z)));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">sgn</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> number)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(number &gt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(number &lt; <span class="number">0</span>) <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>따라서 이를 위한 해결 방법은 상속 대신에 컴포지션을 쓰면 된다는 것이다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChildType</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">ChildType</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Type type;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number2;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ChildType</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> number, <span class="keyword">final</span> <span class="keyword">int</span> number2)</span> </span>&#123;</span><br><span class="line">        type = <span class="keyword">new</span> Type(number);</span><br><span class="line">        <span class="keyword">this</span>.number2 = number2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 부모 클래스의 기능을 쓰고 싶다면 이 메서드를 통해 접근하면 된다.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Type <span class="title">asType</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> type;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">final</span> ChildType child)</span> </span>&#123;</span><br><span class="line">        var result = type.compareTo(child.type);</span><br><span class="line">        result = Integer.compare(number2, child.number2);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>위의 규약들을 지키지 못한다면 compareTo 메서드를 활용하는 TreeSet, TreeMap, Collections, Arrays 등등과 어울리지 못한다.<br>즉, 좁쌀만 한 노력으로 코끼리만 한 큰 효과를 얻는 기회를 상실하게 되는 것이다!  </p>
+<h3 id="구현"><a href="#구현" class="headerlink" title="구현"></a>구현</h3><p>Comparable 인터페이스의 compareTo 메서드를 구현하는 방법은 어렵지 않다.<br>equals 처럼 Object를 인자로 받지 않고 타입을 받기 때문에 Type 체크나 형변환이 필요치 않다.  </p>
+<ol>
+<li>primitive type인 경우에는 <strong>&lt;</strong>, <strong>&gt;</strong>, <strong>=</strong> 등등의 비교 연산자를 쓰기보다는<br>Wrapper Class의 compare 클래스를 이용하는 게 오류도 줄이고, 코드의 가독성도 높이는 길이다.<br>아래와 같이 해당 클래스들은 Comparable 인터페이스를 구현했기 때문이다.<br><code>public final class Integer extends Number implements Comparable&lt;Integer&gt;</code>  </li>
+<li>참조 클래스 같은 경우에는 재귀적으로 compareTo 메서드를 호출해야한다.  </li>
+<li>비교해야할 필드가 여러 개라면 변경 가능성이 높은 필드부터 검사를 해서 성능을 높일 수 있다.  </li>
+</ol>
+<h3 id="Comparator"><a href="#Comparator" class="headerlink" title="Comparator"></a>Comparator</h3><p>아래의 경우에 순서를 비교할 때 사용하는 인터페이스이다.</p>
+<ol>
+<li>Comparable을 구현하지 않은 클래스의 순서를 비교</li>
+<li>Comparable을 구현한 클래스의 compareTo 메서드 대신에 커스텀한 로직으로 순서를 비교하고 싶은 경우<br>String 클래스의 compareTo 메서드를 보면 아래와 같이 우리가 알고 있는 기본적인 알파벳(혹은 가나다) 순으로 비교하고 있다.<br>&nbsp;     <ol>
+<li>비교하려는 두 문자열이 latin1인지 UTF16인지 Character Set을 비교 후 compareTo 메서드 호출  </li>
+<li>두 문자열의 길이를 구함.  <ol>
+<li>두 문자열 중에 길이가 짧은 문자열의 길이까지만 비교(그 이후에는 비교할 문자열이 없으므로 비교가 불가능)  </li>
+<li>비교 대상의 문자열 중 다른 값이 있으면 알파벳(혹은 가나다) 순으로 비교  </li>
+</ol>
+</li>
+<li>비교 대상의 문자열이 모두 같다면 길이가 짧은 문자열이 더 작다고 판단  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(String anotherString)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">byte</span> v1[] = value;</span><br><span class="line">      <span class="keyword">byte</span> v2[] = anotherString.value;</span><br><span class="line">      <span class="keyword">if</span> (coder() == anotherString.coder()) &#123;</span><br><span class="line">          <span class="keyword">return</span> isLatin1() ? StringLatin1.compareTo(v1, v2)</span><br><span class="line">                            : StringUTF16.compareTo(v1, v2);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> isLatin1() ? StringLatin1.compareToUTF16(v1, v2)</span><br><span class="line">                        : StringUTF16.compareToLatin1(v1, v2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">byte</span>[] value, <span class="keyword">byte</span>[] other)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> len1 = value.length;</span><br><span class="line">    <span class="keyword">int</span> len2 = other.length;</span><br><span class="line">    <span class="keyword">return</span> compareTo(value, other, len1, len2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">byte</span>[] value, <span class="keyword">byte</span>[] other, <span class="keyword">int</span> len1, <span class="keyword">int</span> len2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> lim = Math.min(len1, len2);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; lim; k++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (value[k] != other[k]) &#123;</span><br><span class="line">            <span class="keyword">return</span> getChar(value, k) - getChar(other, k);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> len1 - len2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">char</span> <span class="title">getChar</span><span class="params">(<span class="keyword">byte</span>[] val, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// &amp; 0xff는 unsigned value로 만들기 위함이라고 함.</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">char</span>)(val[index] &amp; <span class="number">0xff</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+<p>위의 경우에는 대소문자 비교까지 하고 있는데 우리는 대소문자를 비교하지 않고 싶다면 어떻게 해야할까?  </p>
+<ol>
+<li>compareTo 메서드를 호출하기 전에 두 문자열을 대문자 혹은 소문자로 변환 후 compareTo 메서드 호출</li>
+<li>Comparator 인터페이스 사용</li>
+</ol>
+<p>여기서는 후자를 다룰 것인데, Comparator는 인터페이스이기 때문에 대소문자를 가리지 않은 Comparator를 만들어도 되지만<br>자바에서 기본적으로 이런 기본적인 내용을 구현한 Comparator에 대한 구현체들이 있기 때문에 아래와 같이 해당 클래스를 사용하면 편하다.<br><code>String.CASE_INSENSITIVE_ORDER.compare(string1, string2)</code> </p>
+<p>또한 자바 8부터는 인터페이스가 디폴트 메서드를 가질 수 있기 때문에 같이 간편한 기능들도 제공한다.<br>만약 아래와 같이 integer들을 가진 클래스를 비교한다고 가정했을 때 여태까지는 이렇게 해왔을 것이다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Type</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Type</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number2;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number3;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number4;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">final</span> Type t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> result = Integer.compare(number, t.number);</span><br><span class="line">        result = result == <span class="number">0</span> ? Integer.compare(number2, t.number2) : result;</span><br><span class="line">        result = result == <span class="number">0</span> ? Integer.compare(number3, t.number3) : result;</span><br><span class="line">        result = result == <span class="number">0</span> ? Integer.compare(number4, t.number4) : result;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>하지만 Comparator를 사용한다면 아래와 같이 간단하게 만들 수 있다. (약간의 성능 저하가 따라온다고 한다.)<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Type</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Type</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number2;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number3;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number4;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">final</span> Type t)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 자바의 타입 추론의 한계 때문에 처음에는 타입을 명시해줘야한다.</span></span><br><span class="line">        <span class="comment">// 이렇게 해주는 것만으로 Comparator를 구현한 것이고 이 구현체를 통해 순서를 비교할 수 있다.</span></span><br><span class="line">        <span class="keyword">return</span> Comparator.comparingInt((Type t2) -&gt; t2.number)</span><br><span class="line">                         .thenComparingInt(t2 -&gt; t2.number2)</span><br><span class="line">                         .thenComparingInt(t2 -&gt; t2.number3)</span><br><span class="line">                         .thenComparingInt(t2 -&gt; t2.number4)</span><br><span class="line">                         .compare(<span class="keyword">this</span>, t);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>기본 타입을 비교하는 comparingInt(int보다 작은 short, byte 등등도 이 메서드를 사용), comparingLong, comparingDouble(double 보다 작은 float도 이 메서드 사용)<br>등등이 있고, Collection의 순서를 거꾸로 뒤집는 reversed 메서드 등등 편의성을 제공해주는 메서드들이 있다.<br>또한 기본 타입 이외에 참조 타입 비교를 위한 comparing 메서드도 제공해준다.  </p>
+<p>또한 <strong>값의 차</strong>로 순서를 비교하는 경우에는 정수 오버플로우나 부동 소수점계산 방식에 따라서 오류를 낼 수 있다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Comparator&lt;Object&gt; comparator = <span class="keyword">new</span> Comparator&lt;&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(<span class="keyword">final</span> Object o1, <span class="keyword">final</span> Object o2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> o1.hashCode() - o2.hashCode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>따라서 직접 값의 차를 이용해 순서를 비교하기 보다는 Wrapper Class에서 제공해주는 compare 메서드를 사용하거나<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Comparator&lt;Object&gt; comparator = <span class="keyword">new</span> Comparator&lt;&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(<span class="keyword">final</span> Object o1, <span class="keyword">final</span> Object o2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Integer.compare(o1.hashCode(), o2.hashCode());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>아니면 Comparator에서 제공해주는 메서드를 사용하는 게 더 안전하다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Comparator&lt;Object&gt; comparator = Comparator.comparingInt(Object::hashCode);</span><br></pre></td></tr></table></figure></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2018/12/21/effective-java-ch03-item14-comparable-interface/" data-id="cjvclppg500tkp04qzdav93ua" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2018/12/21/effective-java-ch03-item14-comparable-interface/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

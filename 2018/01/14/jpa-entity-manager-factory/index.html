@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>(JPA) Entity와 EntityManager와 EntityManagerFactory | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Hibernate,JPA,ORM,DB">
+    
+    <meta name="description" content="이미지 출처: &amp;lt;박상문의 Photo &amp;amp; Essay&amp;gt;평양 육아원의 모습 EntityDB의 테이블과 매칭이 되는 개념이라고 보면 된다.그렇다면 왜 이름이 Table이 아니라 Entity일까…?   만약 DB에 member라는 테이블이 있고, 해당 테이블의 스키마가 아래와 같다고 해보자.123456CREATE TABLE `Member` (  `">
+<meta name="keywords" content="Hibernate,JPA,ORM,DB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(JPA) Entity와 EntityManager와 EntityManagerFactory">
+<meta property="og:url" content="https://perfectacle.github.io/2018/01/14/jpa-entity-manager-factory/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="이미지 출처: &amp;lt;박상문의 Photo &amp;amp; Essay&amp;gt;평양 육아원의 모습 EntityDB의 테이블과 매칭이 되는 개념이라고 보면 된다.그렇다면 왜 이름이 Table이 아니라 Entity일까…?   만약 DB에 member라는 테이블이 있고, 해당 테이블의 스키마가 아래와 같다고 해보자.123456CREATE TABLE `Member` (  `">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2018/01/14/jpa-entity-manager-factory/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.317Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(JPA) Entity와 EntityManager와 EntityManagerFactory">
+<meta name="twitter:description" content="이미지 출처: &amp;lt;박상문의 Photo &amp;amp; Essay&amp;gt;평양 육아원의 모습 EntityDB의 테이블과 매칭이 되는 개념이라고 보면 된다.그렇다면 왜 이름이 Table이 아니라 Entity일까…?   만약 DB에 member라는 테이블이 있고, 해당 테이블의 스키마가 아래와 같다고 해보자.123456CREATE TABLE `Member` (  `">
+<meta name="twitter:image" content="https://perfectacle.github.io/2018/01/14/jpa-entity-manager-factory/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2018/01/14/jpa-entity-manager-factory/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Back-end/">Back-end</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Back-end/DB/">DB</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Back-end/DB/JPA/">JPA</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-jpa-entity-manager-factory" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        (JPA) Entity와 EntityManager와 EntityManagerFactory
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2018/01/14/jpa-entity-manager-factory/" class="article-date">
+            <time datetime="2018-01-14T06:24:15.000Z" itemprop="datePublished">2018-01-14</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/DB/">DB</a>, <a class="tag-link" href="/tags/Hibernate/">Hibernate</a>, <a class="tag-link" href="/tags/JPA/">JPA</a>, <a class="tag-link" href="/tags/ORM/">ORM</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumb.png" alt="엔티티는 과자, 엔티티 매니저는 아줌마, 엔티티 매니저 팩토리는 과자 공장"><br>이미지 출처: <a href="http://m.blog.daum.net/umji0112/11794517?categoryId=646664" rel="external nofollow noopener noreferrer" target="_blank">&lt;박상문의 Photo &amp; Essay&gt;평양 육아원의 모습</a></p>
+<h2 id="Entity"><a href="#Entity" class="headerlink" title="Entity"></a>Entity</h2><p>DB의 테이블과 매칭이 되는 개념이라고 보면 된다.<br>그렇다면 왜 이름이 Table이 아니라 Entity일까…?  </p>
+<p>만약 DB에 member라는 테이블이 있고, 해당 테이블의 스키마가 아래와 같다고 해보자.<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`Member`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">BIGINT</span>(<span class="number">20</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`name`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`age`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<p>그렇다면 엔티티는 아래와 같이 만들 수 있다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Member</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span>(strategy = GenerationType.AUTO)</span><br><span class="line">    <span class="meta">@Column</span>(nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Column</span>(nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Column</span>(nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(<span class="keyword">long</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>기본적으로 JPA는 모든 필드를 불러오게 끔 구현돼있다.<br>하지만 모든 케이스에서 id, name, age 필드를 다 다루지 않는다.<br>어떤 경우에는 id, name 필드만 다루는 경우도 있을 수 있다.<br>그런 경우에 대비해서 다음과 같이 엔티티 클래스를 하나 더 만들 수 있다.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"Member"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MemberOnlyName</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span>(strategy = GenerationType.AUTO)</span><br><span class="line">    <span class="meta">@Column</span>(nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> id;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Column</span>(nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(<span class="keyword">long</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>따라서 테이블은 한 개지만, 엔티티는 경우에 따라서 여러 개를 만들 수 있다.<br>혹은 JPA를 좀 더 잘 다룬다면 하나의 엔티티로도 충분히 커버를 할 수 있기도 하다.  </p>
+<h2 id="EntityManager"><a href="#EntityManager" class="headerlink" title="EntityManager"></a>EntityManager</h2><p>위에 언급한 엔티티를 관리하는 역할을 수행하는 클래스이다.<br>그럼 어떤 방식으로 엔티티 매니저는 엔티티들을 관리할까?<br>엔티티 매니저 내부에 <strong>영속성 컨텍스트(Persistence Context)</strong>라는 걸 두어서 엔티티들을 관리한다.  </p>
+<h3 id="영속성-컨텍스트-Persistence-Context"><a href="#영속성-컨텍스트-Persistence-Context" class="headerlink" title="영속성 컨텍스트(Persistence Context)"></a>영속성 컨텍스트(Persistence Context)</h3><p><img src="entity-manager.png" alt=""><br>영속성: 기본적으로 컴퓨터 공학에서 영속성이라고 하면 <strong>비휘발성</strong>이라고 보면 될 것 같다.<br>휘발성은 프로그램이 꺼지거나 전원이 나가면 데이터가 날아가는 경우를 휘발성이라 하고, 그 반대가 비휘발성이다.<br>하지만 휘발성과 비휘발성 이란 단어는 저장 장치(메인 메모리나 플래시 메모리 등등)의 특징을 나타낼 때 많이 쓰고,<br>영속성이란 단어는 DB에 관해 설명할 때 많이 사용하는 것 같다.  </p>
+<p>컨텍스트: 직역하면 맥락, 문맥이란 뜻인데 프로그래밍 쪽에선 좀 다른 뜻으로 쓰이는 것 같다.<br>내가 알기로는 하나의 환경, 공간? 쯤으로 이해하고 사용하고 있다.  </p>
+<blockquote>
+<p>영속성 컨텍스트는 <strong>엔티티를 영구히 저장하는 환경</strong>이다.<br>출처: 자바 ORM 표준 JPA 프로그래밍(김영한 저) 92P, 3.2 영속성 컨텍스트란?  </p>
+</blockquote>
+<p>하지만 개발자가 직접 영속성 컨텍스트를 뜯어보거나 그 내부를 들여다 볼 수는 없어서 약간은 논리적이거나 추상적인 개념으로 바라봐야한다.  </p>
+<p>여러 엔티티 매니저가 하나의 영속성 컨텍스트를 공유할 수도 있다고 한다.<br>그리고 영속성 컨텍스트를 책의 저자는 <strong>엔티티를 영구히 저장하는 환경</strong>이라고 했는데 내가 봤을 때는<br><strong>영속성 컨텍스트를 관리하는 모든 엔티티 매니저가 초기화 및 종료되지 않는 한 엔티티를 영구히 저장하는 환경</strong>이라고 정정해야할 것 같다.<br>그냥 영구히 저장 된다고 하면 프로그램을 껐다 켜도 영속성 컨텍스트는 항상 살아 있을 것 같다는 생각이 든다.<br>하지만 프로그램을 끄기도 전에 엔티티 매니저를 초기화 및 종료 시키는 코드를 만나면 해당 영속성 컨텍스트는 소멸된다.  </p>
+<h4 id="엔티티-매니저와-영속성-컨텍스트의-엔티티-관리"><a href="#엔티티-매니저와-영속성-컨텍스트의-엔티티-관리" class="headerlink" title="엔티티 매니저와 영속성 컨텍스트의 엔티티 관리"></a>엔티티 매니저와 영속성 컨텍스트의 엔티티 관리</h4><p>그럼 엔티티 매니저와 영속성 컨텍스트는 어떻게 엔티티를 관리할까?<br>우선 한 명의 멤버를 추가하는 코드를 살펴보자.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Join</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 아직까지는 해당 엔티티를 엔티티 매니저가 관리하지 않는다.</span></span><br><span class="line">        Member member = <span class="keyword">new</span> Member();</span><br><span class="line">        member.setName(name);</span><br><span class="line">        member.setAge(age);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 엔티티 매니저가 있다고 가정.</span></span><br><span class="line">        <span class="comment">// 추후에 엔티티 매니저 팩토리와 함께 엔티티 매니저를 어떻게 생성하는지 설명.</span></span><br><span class="line">        EntityManager em;</span><br><span class="line">        EntityTransaction tx = em.getTransaction();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 엔티티 매니저에서 수행하는 모든 로직은 트랜잭선 안에서 수행돼야 한다.</span></span><br><span class="line">            tx.begin();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 이렇게 하면 해당 엔티티 매니저의 영속성 컨텍스트에 위에서 만든 member 객체가 저장된다.  </span></span><br><span class="line">            <span class="comment">// 이제 member 엔티티는 엔티티 매니저의 관리 대상이 되고, 영속성을 가졌다고 말할 수 있다.</span></span><br><span class="line">            em.persist(member);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 트랜잭션을 커밋한다.</span></span><br><span class="line">            tx.commit();</span><br><span class="line">        &#125; <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">            <span class="comment">// 어떤 이유에서 오류가 났다면 트랜잭션을 롤백 시켜줘야한다.</span></span><br><span class="line">            tx.rollback();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 엔티티 매니저를 종료시켜줘야 한다.  </span></span><br><span class="line">            <span class="comment">// 아마 더 이상 사용하지 않는 자원이므로 더 이상 사용하지 않는 자원이라고 표시하는 것 같다.</span></span><br><span class="line">            <span class="comment">// 그럼 아마 GC가 해당 엔티티 매니저 자원을 수거해가서 메모리에 반환하지 않을까??</span></span><br><span class="line">            <span class="comment">// 성능 상 문제가 있어서 이렇게 종료시켜줘야 하는 건지 모르겠다. </span></span><br><span class="line">            em.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>여기서 두 가지 설명하지 않은 개념이 있다.<br>엔티티가 영속성을 가졌을 때의 특징(엔티티의 생명주기)와 트랜잭션이다.<br>엔티티의 생명 주기는 나중에 엔티티 매니저를 사용하는 이유와 관련해서 따로 정리해야겠다.  </p>
+<h4 id="트랜잭션-Transaction"><a href="#트랜잭션-Transaction" class="headerlink" title="트랜잭션(Transaction)"></a>트랜잭션(Transaction)</h4><p>하나의 작업 단위라고 보면 될 것 같다.<br>예를 들면 <code>상품 구매</code>라는 하나의 작업을 보면 아래와 같은 자잘한 작업들이 존재한다.</p>
+<ol>
+<li>상품의 재고 조회  </li>
+<li>유저의 잔고 조회  </li>
+<li>상품의 재고 -1  </li>
+<li>유저의 잔고에서 돈을 뺌.  </li>
+<li>주문 생성  </li>
+</ol>
+<p>이런 5개의 작업은 중간에 하나라도 뻑나면 작업 전체가 뻑났다고 보고 아예 맨 처음 상태로 돌려야한다.<br>4번에서 뻑났을 때 상품의 재고도 -1 했던 걸 원래 처음 상태로 돌려놔야 정상적인 작동이라고 말할 수 있다.<br>이렇게 오류가 났을 때 처음 상태로 돌아가는(rollback) 작업의 단위를 트랜잭션이라고 한다.<br>트랜잭션이 모두 정상적으로 수행됐을 때는 commit을 수행해서 작업 내용을 실제 DB와 엔티티 매니저에 반영한다.</p>
+<p>그럼 JPA에서 모든 로직은 왜 트랜잭션 안에서 수행해야하는 것일까…?<br>물론 조회 로직은 트랜잭션 안에서 수행해야 할 필요도 없고, 트랜잭션의 단위가 커지면 데드락 이슈에 봉착하기 때문에 최대한 트랜잭션의 단위를 작게 잡으면서 안정성을 가져가는 게 베스트다.<br>그건 JPA가 쿼리를 한 방에 날리기 때문이다.  </p>
+<h4 id="쓰기-지연-SQL-저장소"><a href="#쓰기-지연-SQL-저장소" class="headerlink" title="쓰기 지연 SQL 저장소"></a>쓰기 지연 SQL 저장소</h4><p><img src="sql-manager.png" alt=""><br>영속성 컨텍스트 안에는 <strong>쓰기 지연 SQL 저장소</strong>라는 공간이 따로 존재한다.<br>만약 아래와 같은 코드가 있다고 보자.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Join</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 아직까지는 해당 엔티티를 엔티티 매니저가 관리하지 않는다.</span></span><br><span class="line">        Member member = <span class="keyword">new</span> Member();</span><br><span class="line">        member.setName(name);</span><br><span class="line">        member.setAge(age);</span><br><span class="line">        </span><br><span class="line">        Member member2 = <span class="keyword">new</span> Member();</span><br><span class="line">        member2.setName(name);</span><br><span class="line">        member2.setAge(age);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 엔티티 매니저가 있다고 가정.</span></span><br><span class="line">        <span class="comment">// 추후에 엔티티 매니저 팩토리와 함께 엔티티 매니저를 어떻게 생성하는지 설명.</span></span><br><span class="line">        EntityManager em;</span><br><span class="line">        EntityTransaction tx = em.getTransaction();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 엔티티 매니저에서 수행하는 모든 로직은 트랜잭선 안에서 수행돼야 한다.</span></span><br><span class="line">            tx.begin();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 쿼리는 전송되지 않는다.</span></span><br><span class="line">            em.persist(member);</span><br><span class="line">            em.persist(member2);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 커밋하는 시점에 쿼리가 전송된다.</span></span><br><span class="line">            tx.commit();</span><br><span class="line">        &#125; <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">            <span class="comment">// 어떤 이유에서 오류가 났다면 트랜잭션을 롤백 시켜줘야한다.</span></span><br><span class="line">            tx.rollback();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 엔티티 매니저를 종료시켜줘야 한다.  </span></span><br><span class="line">            <span class="comment">// 아마 더 이상 사용하지 않는 자원이므로 더 이상 사용하지 않는 자원이라고 표시하는 것 같다.</span></span><br><span class="line">            <span class="comment">// 그럼 아마 GC가 해당 엔티티 매니저 자원을 수거해가서 메모리에 반환하지 않을까??</span></span><br><span class="line">            <span class="comment">// 성능 상 문제가 있어서 이렇게 종료시켜줘야 하는 건지 모르겠다. </span></span><br><span class="line">            em.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>트랜잭션을 생각하지 않고 의식의 흐름대로 코드의 동작을 추측해보면…  </p>
+<ol>
+<li>쿼리가 두 번 날아갈 것이다.  </li>
+<li>만약에 멤버 2를 저장하는 시점에서 롤백을 해야할 때는 날리지 않아도 될 멤버 1에 대한 삽입 쿼리를 날리게 된 격이다.  </li>
+</ol>
+<p>하지만 쓰기 지연 SQL 저장소 및 트랜잭션에 의해 아래와 같이 동작한다.  </p>
+<ol>
+<li>트랜잭션이 커밋 되기 직전까지 모든 쿼리문은 영속성 컨텍스트 내부의 쓰기 지연 SQL 저장소에 저장된다.  </li>
+<li>트랜잭션이 커밋되는 순간 모든 쿼리가 한 방에 날아간다.  </li>
+<li>만약 트랜잭션 내부에서 오류가 나서 롤백을 해야한다면 애초에 날리지도 않을 쿼리를 날리지도 않는다.  </li>
+</ol>
+<p>위와 같이 성능 이슈 때문에 모든 로직을 트랜잭션 내부에서 처리하게끔 하려는 것인 것 같다.  </p>
+<h2 id="EntityManagerFactory"><a href="#EntityManagerFactory" class="headerlink" title="EntityManagerFactory"></a>EntityManagerFactory</h2><p>엔티티 매니저는 여러 스레드가 동시에 접근하면 동시성 문제가 발생하므로 스레드 간에 절대 공유하면 안 된다.  </p>
+<p>동시성(Concurrency): 유저가 체감하기에는 동시에 수행하는 거 처럼 보이지만 사실은 유저가 체감할 수 없는 짧은 시간단위로 작업들을 번갈아가면서 수행하는 것이다.<br>예를 들면 싱글 코어에서 멀티 스레드를 구현하기 위해서 쓰이는 기법?이다.<br>각 스레드들이 동시에 동작하는 거 같지만 알고 보면 스레드들이 아주 짧은 시간마다 번갈아가면서 작업을 수행하고 있는 것이다.<br>병렬(Parallelism): 우리가 생각하는 그 진짜 동시에 실행하는 개념을 생각하면 될 것 같다.<br>실제로 동시에 여러 작업이 수행되는 개념이다.<br>멀티 코어에서 멀티 스레드를 구현할 때 쓰이는 기법?이다.<br>각 스레드들이 동시에 동작한다. </p>
+<p><del>내가 과자 먹으려고 하는데 누가 와서 뺏어먹을 수도 있기 때문에…</del><br>내가 데이터를 수정하고 있는데 다른 스레드에서 해당 데이터를 미리 수정해버리면 안 되기 때문…<br>따라서 엔티티 매니저는 하나를 공유하면 안 되고, 상황에 따라서 계속해서 만들어줘야한다.<br>그럼 이런 엔티티 매니저는 누가 만들어줄까?<br>바로 엔티티 매니저 팩토리(공장)이다.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Join</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 아직까지는 해당 엔티티를 엔티티 매니저가 관리하지 않는다.</span></span><br><span class="line">        Member member = <span class="keyword">new</span> Member();</span><br><span class="line">        member.setName(name);</span><br><span class="line">        member.setAge(age);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// META-INF/persistence.xml에서 이름이 db인 persistence-unit을 찾아서 엔티티 매니저 팩토리를 생성 </span></span><br><span class="line">        EntityManagerFatory emf = Persistence.createEntityManagerFactory(<span class="string">"db"</span>);</span><br><span class="line">        EntityManager em = emf.createEntityManager();</span><br><span class="line">        EntityTransaction tx = em.getTransaction();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 엔티티 매니저에서 수행하는 모든 로직은 트랜잭선 안에서 수행돼야 한다.</span></span><br><span class="line">            tx.begin();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 이렇게 하면 해당 엔티티 매니저의 영속성 컨텍스트에 위에서 만든 member 객체가 저장된다.  </span></span><br><span class="line">            <span class="comment">// 이제 member 엔티티는 엔티티 매니저의 관리 대상이 되고, 영속성을 가졌다고 말할 수 있다.</span></span><br><span class="line">            em.persist(member);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 트랜잭션을 커밋한다.</span></span><br><span class="line">            tx.commit();</span><br><span class="line">        &#125; <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">            <span class="comment">// 어떤 이유에서 오류가 났다면 트랜잭션을 롤백 시켜줘야한다.</span></span><br><span class="line">            tx.rollback();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 엔티티 매니저를 종료시켜줘야 한다.  </span></span><br><span class="line">            <span class="comment">// 아마 더 이상 사용하지 않는 자원이므로 메모리에 자원을 반환하지 않으면</span></span><br><span class="line">            <span class="comment">// 성능 상 문제가 있어서 이렇게 종료시켜줘야 하는 건지 모르겠다. </span></span><br><span class="line">            em.close();</span><br><span class="line">        &#125;</span><br><span class="line">        emf.close(); <span class="comment">// 마찬가지로 엔티티 매니저 팩토리도 더이상 쓰지 않는다면 종료시켜줘야 한다.</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>공장(엔티티 매니저 팩토리)에서 제품(엔티티 매니저)를 찍어내는 개념이라고 보면 될 것 같다.<br>엔티티 매니저 팩토리는 엔티티 매니저와 달리 여러 스레드가 동시에 접근해도 안전하다.<br>단순히 엔티티 매니저만 찍어대는 녀석이기 때문이다.  </p>
+<p>비용도 보면 공장을 짓는 비용은 굉장히 크다.<br>그래서 엔티티 매니저 팩토리는 DB 당 하나 밖에 사용하지 않는다.<br>그에 비해 공장에서 제품을 찍어내는 것은 너무나도 당연하고 빈번하게 일어나는 일이기 때문에 비용이 엄청 크게 들지 않는다.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EMF</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">      EntityManagerFatory emf = Persistence.createEntityManagerFactory(<span class="string">"db"</span>);</span><br><span class="line">      EntityManagerFatory emf2 = Persistence.createEntityManagerFactory(<span class="string">"db"</span>);</span><br><span class="line">      </span><br><span class="line">      System.out.println(emf == emf2); <span class="comment">// false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>하지만 그냥 일반적으로 엔티티 매니저 팩토리를 사용하면 계속 새로운 엔티티 매니저 팩토리를 생성한다.<br>따라서 동일한 엔티티 매니저 팩토리를 공유해서 사용하려면 싱글턴 인스턴스나 의존성 주입 등등을 통해 개발자의 의식적인 노력이 필요하다.  </p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2018/01/14/jpa-entity-manager-factory/" data-id="cjvclppgt00ucp04qzamehsnr" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2018/01/14/jpa-entity-manager-factory/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

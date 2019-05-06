@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>(Spring) Spring Boot 2.0에서 로깅 환경 구축하기 | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Spring,log">
+    
+    <meta name="description" content="오늘은 서버를 구성할 때 필수적인 로깅에 대해 알아보자!우선 환경 별로 profile 쪼개기가 진행된 상태에서 시작한다.최종 결과물은 github 저장소에서 확인 가능하다. 로깅 라이브러리여러가지 logging 라이브러리가 있는데 Spring Boot 2.0에서는 사진과 같이Java Util Logging,Log4j 2,Logback을 기본적으로 사용할">
+<meta name="keywords" content="Spring,log">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(Spring) Spring Boot 2.0에서 로깅 환경 구축하기">
+<meta property="og:url" content="https://perfectacle.github.io/2018/07/22/spring-boot-2-log/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="오늘은 서버를 구성할 때 필수적인 로깅에 대해 알아보자!우선 환경 별로 profile 쪼개기가 진행된 상태에서 시작한다.최종 결과물은 github 저장소에서 확인 가능하다. 로깅 라이브러리여러가지 logging 라이브러리가 있는데 Spring Boot 2.0에서는 사진과 같이Java Util Logging,Log4j 2,Logback을 기본적으로 사용할">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2018/07/22/spring-boot-2-log/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(Spring) Spring Boot 2.0에서 로깅 환경 구축하기">
+<meta name="twitter:description" content="오늘은 서버를 구성할 때 필수적인 로깅에 대해 알아보자!우선 환경 별로 profile 쪼개기가 진행된 상태에서 시작한다.최종 결과물은 github 저장소에서 확인 가능하다. 로깅 라이브러리여러가지 logging 라이브러리가 있는데 Spring Boot 2.0에서는 사진과 같이Java Util Logging,Log4j 2,Logback을 기본적으로 사용할">
+<meta name="twitter:image" content="https://perfectacle.github.io/2018/07/22/spring-boot-2-log/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2018/07/22/spring-boot-2-log/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Back-end/">Back-end</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Back-end/Spring/">Spring</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-spring-boot-2-log" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        (Spring) Spring Boot 2.0에서 로깅 환경 구축하기
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2018/07/22/spring-boot-2-log/" class="article-date">
+            <time datetime="2018-07-22T11:31:55.000Z" itemprop="datePublished">2018-07-22</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Spring/">Spring</a>, <a class="tag-link" href="/tags/log/">log</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumb.png" alt=""></p>
+<p>오늘은 서버를 구성할 때 필수적인 로깅에 대해 알아보자!<br>우선 <a href="/2018/07/22/spring-boot-2-env/">환경 별로 profile 쪼개기</a>가 진행된 상태에서 시작한다.<br>최종 결과물은 <a href="https://github.com/perfectacle/spring-boot-2-logging" rel="external nofollow noopener noreferrer" target="_blank">github 저장소</a>에서 확인 가능하다.</p>
+<h2 id="로깅-라이브러리"><a href="#로깅-라이브러리" class="headerlink" title="로깅 라이브러리"></a>로깅 라이브러리</h2><p>여러가지 logging 라이브러리가 있는데 Spring Boot 2.0에서는 사진과 같이<br><a href="https://docs.oracle.com/javase/10/docs/api/java/util/logging/package-summary.html" rel="external nofollow noopener noreferrer" target="_blank">Java Util Logging</a>,<br><a href="http://logging.apache.org/log4j/2.x/" rel="external nofollow noopener noreferrer" target="_blank">Log4j 2</a>,<br><a href="https://logback.qos.ch/" rel="external nofollow noopener noreferrer" target="_blank">Logback</a>을 기본적으로 사용할 수 있다.<br><img src="logging-lib.png" alt=""></p>
+<p><a href="https://beyondj2ee.wordpress.com/2012/11/09/logback-%EC%82%AC%EC%9A%A9%ED%95%B4%EC%95%BC-%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0-reasons-to-prefer-logback-over-log4j/" rel="external nofollow noopener noreferrer" target="_blank">logback 사용해야 하는 이유</a><br>에 왜 logback을 사용해야하는지 나왔있으니 logback으로 로깅 라이브러리를 선택했다.</p>
+<p>혹시나 다른 로깅 라이브러리로 갈아타기 편하기 위해 Facade 패턴을 적용한 <a href="https://www.slf4j.org/" rel="external nofollow noopener noreferrer" target="_blank">Slf4j</a>를 사용하기 위해 lombok을 디펜던시에 추가해야한다.<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compileOnly(<span class="string">'org.projectlombok:lombok'</span>)</span><br></pre></td></tr></table></figure></p>
+<p>또한 logback 관련된 설정을 찾다보면 logback.xml vs logback-spring.xml을 보게 되는데<br>Web Application이 시작되고 나서 classpath 내의 logback.xml을 뒤져서 환경 설정을 적용한다.<br>이 때는 Spring이 구동되기 이전이라 application.properties 내에 존재하는 값들을 불러올 수 없다.<br>logback-spring.xml에서는 Spring이 구동된 후라 application.properties에 있는 값들을 불러올 수 있다.</p>
+<h2 id="콘솔-로깅"><a href="#콘솔-로깅" class="headerlink" title="콘솔 로깅"></a>콘솔 로깅</h2><p>기본적으로 콘솔 로깅은 뭔가 디버깅할 용도로 많이 사용하기 때문에 local, test 환경에서 많이 사용한다.<br>우선 resources 디렉토리를 아래와 같이 구성하자.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- resources</span><br><span class="line">  - log</span><br><span class="line">    - console.xml</span><br></pre></td></tr></table></figure></p>
+<p>아래 내용을 복붙해주자.<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">"STDOUT"</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.ConsoleAppender"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">encoder</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">charset</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">charset</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyyMMdd HH:mm:ss.SSS&#125; [%thread] %-3level %logger&#123;5&#125; - %msg %n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>name은 다른 파일이나 위치에서 해당 appender를 무슨 이름으로 참조할지 이름을 정한 것이고,<br>ConsoleAppender 클래스를 사용해서 콘솔에 로깅한다고 명시하는 거 같다.<br>한글이 들어갈지도 모르니 charset을 UTF-8로 세팅해주자.<br>패턴은 어떤 형태로 찍을지에 대해서 규칙을 정한 것이다.<br>자세한 내용은 <a href="https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout" rel="external nofollow noopener noreferrer" target="_blank">PatternLayout</a>을 살펴보자.  </p>
+<ol>
+<li><code>%d{yyyyMMdd HH:mm:ss.SSS}</code> - 날짜</li>
+<li><code>%thread</code> - 어떤 스레드에서 실행한 것인지</li>
+<li><code>%-3level</code> - 로깅 레벨</li>
+<li><code>%logger{5}</code> - 어떤 클래스의 로거가 실행된 건지</li>
+<li><code>%msg</code> - 메세지  </li>
+<li><code>%n</code> - 줄바꿈</li>
+</ol>
+<p>이제 해당 appender를 사용하게 끔 resources 디렉토리에 logback-spring.xml을 만들어주자.<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">"log/console.xml"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">"info"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"local"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"STDOUT"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"dev"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"prod"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"test"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"STDOUT"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>include를 쓰지 않고 직접 xml 소스 코드를 넣어도 되지만 가독성을 해치는 것 같아 분리했다.<br>또한 root에 설정했다 싶이 default logging level을 info로 설정했다.<br>그리고 springProfile name 값에는 !local과 같은 값도 넣을 수 있다.<br>appender-ref를 통해 appender를 참조할 수 있다.<br>아니면 직접 그 코드를 삽입해도 되긴 하지만 중복이 상당히 많아질 것이다.  </p>
+<p>로컬 환경과 dev 환경을 실행해보면 로컬 환경은 콘솔 창에 로그가 잘 찍히는데 dev 환경에서는 아래 로그가 끝일 것이다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">  .   ____          _            __ _ _</span><br><span class="line"> /\\ / ___&apos;_ __ _ _(_)_ __  __ _ \ \ \ \</span><br><span class="line">( ( )\___ | &apos;_ | &apos;_| | &apos;_ \/ _` | \ \ \ \</span><br><span class="line"> \\/  ___)| |_)| | | | | || (_| |  ) ) ) )</span><br><span class="line">  &apos;  |____| .__|_| |_|_| |_\__, | / / / /</span><br><span class="line"> =========|_|==============|___/=/_/_/_/</span><br><span class="line"> :: Spring Boot ::        (v2.0.3.RELEASE)</span><br></pre></td></tr></table></figure></p>
+<h2 id="로그-파일-남기기"><a href="#로그-파일-남기기" class="headerlink" title="로그 파일 남기기"></a>로그 파일 남기기</h2><p>console 로깅은 휘발성 데이터이고, 관리 측면에서도 용이하지 않기 때문에 날짜 별로 로그 파일로 남기게 해보자.<br>console.xml과 같은 디렉토리에 file.xml을 만들어주자.<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">"dailyRollingFileAppender"</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;LOG_FILE&#125;/tomcat_log.%d&#123;yyyy-MM-dd&#125;-%i.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">timeBasedFileNamingAndTriggeringPolicy</span> <span class="attr">class</span>=<span class="string">"ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxFileSize</span>&gt;</span>100MB<span class="tag">&lt;/<span class="name">maxFileSize</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">timeBasedFileNamingAndTriggeringPolicy</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">encoder</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">charset</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">charset</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy:MM:dd HH:mm:ss.SSS&#125; %-5level --- [%thread] %logger&#123;35&#125; : %msg %n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>하루에 하나씩 생성되는 설정이다. (tomcat_log.2018-07-23-0.log와 같이)<br>maxHistory를 30일로 설정해서 30일이 지난 로그들은 삭제된다.<br>또한 maxFileSize를 100MB로 설정해서 로그 파일 용량이 100MB를 초과하면 자동으로 인덱스가 증가하면서 새로운 로그 파일이 생성된다. (시작은 0)<br>그리고 log file 생성 경로를 위해 env 별 application.properties 파일에서 아래 코드를 추가해주면 된다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logging.file=./log/local</span><br></pre></td></tr></table></figure></p>
+<p>이렇게 되면 프로젝트 루트 디렉토리에 log 폴더가 생긴다.<br>$LOG_FILE을 바인딩 했다고 보면 된다.<br>위 설정을 하지 않으면 LOG_FILE_IS_UNDEFINED라는 디렉토리가 생기고 거기에 log 파일이 생성된다.</p>
+<p>이제 해당 appender를 사용하게 끔 resources 디렉토리에 logback-spring.xml를 수정하자.<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">"log/console.xml"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">include</span> <span class="attr">resource</span>=<span class="string">"log/file.xml"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">"info"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"local"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"STDOUT"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"dailyRollingFileAppender"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"dev"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"dailyRollingFileAppender"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"prod"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"dailyRollingFileAppender"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">springProfile</span> <span class="attr">name</span>=<span class="string">"test"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"STDOUT"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">springProfile</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>test 환경에서는 로그 파일을 굳이 남길 필요가 없다.<br>각 환경별로 로깅을 잘 하는지 확인해보고 테스트를 실행했을 때 로깅 파일이 제대로 생성되지 않으면 성공이다.  </p>
+<h2 id="로깅-레벨-정하기"><a href="#로깅-레벨-정하기" class="headerlink" title="로깅 레벨 정하기"></a>로깅 레벨 정하기</h2><p>local, dev, test 환경에서는 디버깅용 로그를 볼 일이 많다.<br>하지만 prod 환경에서는 디버깅용 로그를 남기는 것은 불필요하므로 끄는 게 좋다.<br>if 문으로 컨트롤 하는 것 또한 성능에 미비한 영향을 미칠테니 application.properties를 컨트롤 함으로써 해결해보자.  </p>
+<p>local/dev/test env의 application.properties를 아래와 같이 수정해보자.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logging.level.com.example.demo=debug</span><br></pre></td></tr></table></figure></p>
+<p>com 부터는 본인의 application이 있는 패키지를 선택해주면 된다.  </p>
+<p>그리고 시험삼아 Applications 클래스를 아래와 같이 수정해봤다.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(DemoApplication.class, args);</span><br><span class="line"></span><br><span class="line">        log.error(<span class="string">"error"</span>);</span><br><span class="line">        log.warn(<span class="string">"warn"</span>);</span><br><span class="line">        log.info(<span class="string">"info"</span>);</span><br><span class="line">        log.trace(<span class="string">"trace"</span>);</span><br><span class="line">        log.debug(<span class="string">"debug"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>파일/콘솔 로그에 찍히는 결과는 아래와 같았다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">20180723 00:54:06.524 [main] ERROR c.e.d.DemoApplication - error </span><br><span class="line">20180723 00:54:06.524 [main] WARN c.e.d.DemoApplication - warn </span><br><span class="line">20180723 00:54:06.524 [main] INFO c.e.d.DemoApplication - info </span><br><span class="line">20180723 00:54:06.524 [main] DEBUG c.e.d.DemoApplication - debug</span><br></pre></td></tr></table></figure></p>
+<p>trace가 가장 높은 레벨(?)인 거 같다.  </p>
+<p>logging level을 아무것도 설정하지 않은 prod env로 실행하면 아래와 같이 나온다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">20180723 00:54:06.524 [main] ERROR c.e.d.DemoApplication - error </span><br><span class="line">20180723 00:54:06.524 [main] WARN c.e.d.DemoApplication - warn </span><br><span class="line">20180723 00:54:06.524 [main] INFO c.e.d.DemoApplication - info</span><br></pre></td></tr></table></figure></p>
+<p>default level을 info로 설정했기 때문이다.  </p>
+<p>Hibernate Logging을 하고 싶다면 아래와 같이 하면 된다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">logging.level.org.hibernate=debug</span><br><span class="line">spring.jpa.show-sql=true</span><br><span class="line">spring.jpa.properties.hibernate.format_sql=true</span><br></pre></td></tr></table></figure></p>
+<p>spring.jpa.properties.hibernate.format_sql은 좀 더 보기 좋게 출력하는 것이니 필수는 아니다.<br>logging.level.org.hibernate를 info로 세팅했을 때는 콘솔에는 찍혔지만, 파일에는 찍히지 않았다.  </p>
+<h2 id="Access-Log"><a href="#Access-Log" class="headerlink" title="Access Log"></a>Access Log</h2><p><strong>이 포스트에선 Tomcat을 사용한다고 가정하겠다.</strong><br>유저가 어떤 URL을 호출했는지 알기 위해서는 Access Log를 남겨야한다.<br>그러기 위해서는 웹 어플리케이션을 만들어야하기 때문에 아래 두 디펜던시를 인젝션 받자.<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">compile(<span class="string">'org.springframework.boot:spring-boot-starter-actuator'</span>)</span><br><span class="line">compile(<span class="string">'org.springframework.boot:spring-boot-starter-web'</span>)</span><br></pre></td></tr></table></figure></p>
+<p>actuator는 health check, monitoring, metrics 등등 다양한 기능을 지원하는데 나는 health check 용으로 밖에 안 써봤다.<br>actuator는 필수는 아니다.<br>web은 <code>@RestController, @GetMapping</code> 등등 다양한 Rest API용 어노테이션을 제공해준다.  </p>
+<p>또한 2.0 들어서 actuator의 url이 <code>/health</code>와 같은 형태에서 <code>/actuator/health</code>와 같은 형태로 바뀌었다.<br>actuator의 url을 바꾸고 싶으면 application.properties에 아래와 같은 코드를 추가해주면 된다.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">management.endpoints.web.base-path=/</span><br></pre></td></tr></table></figure></p>
+<p>그리고 테스트용 컨트롤러를 하나 만들자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@Slf</span>4j</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Controller</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GetMapping</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        log.info(<span class="string">"info"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>그리고 이제 access log용 설정을 application.properties에 해야하는데 application.properties로 설정하면<br>health check나 <em>.ico, </em>.js 등등의 정적 파일 access log까지 생기게 된다.<br>그러기 위해선 커스텀하게 설정을 해야하고, application.properties에는 디렉토리만 설정해주자.  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server.tomcat.basedir=./log/local</span><br></pre></td></tr></table></figure>
+<p>좀 더 커스텀한 설정을 하기 위해서는 <a href="https://tomcat.apache.org/tomcat-8.5-doc/config/valve.html" rel="external nofollow noopener noreferrer" target="_blank">Apache Tomcat Access Log Valve</a>를 사용해야한다.<br>그리고 AccessLogConfig.java를 만들자.(참고로 spring boot 1.x는 이 코드대로는 동작하지 않고, <a href="https://stackoverflow.com/a/28486711/8778461" rel="external nofollow noopener noreferrer" target="_blank">링크</a>를 참조하자.)<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.catalina.valves.AccessLogValve;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.server.WebServerFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.server.WebServerFactoryCustomizer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by kwonsungyang on 18/07/2018</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccessLogConfig</span> <span class="keyword">implements</span> <span class="title">WebServerFactoryCustomizer</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(<span class="keyword">final</span> WebServerFactory factory)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> TomcatServletWebServerFactory containerFactory = (TomcatServletWebServerFactory) factory;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> AccessLogValve accessLogValve = <span class="keyword">new</span> AccessLogValve();</span><br><span class="line">        accessLogValve.setPattern(<span class="string">"%&#123;yyyy-MM-dd HH:mm:ss&#125;t\t%s\t%r\t%&#123;User-Agent&#125;i\t%&#123;Referer&#125;i\t%a\t%b"</span>);</span><br><span class="line">        accessLogValve.setDirectory(<span class="string">"."</span>);</span><br><span class="line">        accessLogValve.setSuffix(<span class="string">".log"</span>);</span><br><span class="line">        accessLogValve.setCondition(<span class="string">"ignoreLogging"</span>);</span><br><span class="line">        containerFactory.addContextValves(accessLogValve);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li><code>%{yyyy-MM-dd HH:mm:ss}t</code> - 날짜</li>
+<li><code>%s</code> - status code</li>
+<li><code>%r</code> - First line of the request (method and request URI)</li>
+<li><code>%{User-Agent}i</code> - <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent" rel="external nofollow noopener noreferrer" target="_blank">user agent</a>(browser, 검색 엔진 등등)  </li>
+<li><code>%{Referer}i</code> - <a href="https://developer.mozilla.org/ko/docs/Web/HTTP/Headers/Referer" rel="external nofollow noopener noreferrer" target="_blank">Referer 헤더</a>  </li>
+<li><code>%a</code> - remote ip address</li>
+<li><code>%b</code> - 몇 바이트 응답했는지(Content-Length랑 똑같을 거 같다.)</li>
+</ol>
+<p>우선 위와 같은 패턴을 아래와 같이 나오며 자세한 내용은 <a href="https://tomcat.apache.org/tomcat-8.5-doc/config/valve.html#Access_Logging" rel="external nofollow noopener noreferrer" target="_blank">Access Logging 파트를 참고하자.</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2018-07-23 01:42:29	200	GET / HTTP/1.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36	-	119.149.166.27	-</span><br></pre></td></tr></table></figure></p>
+<p><strong>L4 switch/Proxy Server</strong>를 쓰는 경우에는 remote ip에 고정된 l4/proxy ip가 찍히게 되므로<br>원래 클라이언트의 IP를 알기 위해선 <strong>%a를 %{X-Forwarded-For}i</strong>로 고쳐줘야한다.<br>%{X-Forwarded-For}i를 사용하게 되면 <code>remote ip address, l4/proxy ip address</code> 순서로 찍히게 된다.  </p>
+<p>directory를 세팅해주지 않으면 <code>server.tomcat.basedir</code>로 정한 디렉토리 안에 또 logs 디렉토리가 생겨서 지저분해서 세팅했다.<br>또한 suffix를 세팅해주지 않으면 <code>access_log.2018-07-23</code>와 같이 파일명이 저장되서 log 파일 extension을 붙여주는 코드를 세팅했다.<br>condition은 request.getAttribute(“ignoreLogging”)의 값이 null이 아니면 logging 하는 것이고,<br>conditionIf는 request.getAttribute(“ignoreLogging”)의 값이 null이면 logging 하는 것이다.<br>무시할만한 로그가 많다면 일일이 set하는 건 비효율적이므로 conditionIf를 쓰면 되고,<br>무시할만한 로그가 적다면 set 하는 게 더 효율적이므로 condition을 쓰면 좋을 것 같다.  </p>
+<p>이제는 url을 분석해서 attribute를 세팅하는 Filter를 구현하자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.*;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoggingFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(<span class="keyword">final</span> ServletRequest req,</span></span></span><br><span class="line"><span class="function"><span class="params">                         <span class="keyword">final</span> ServletResponse res,</span></span></span><br><span class="line"><span class="function"><span class="params">                         <span class="keyword">final</span> FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> String url = ((HttpServletRequest) req).getRequestURI();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(url.matches(<span class="string">"/(health|.+\\.(ico|js))"</span>)) &#123;</span><br><span class="line">            req.setAttribute(<span class="string">"ignoreLogging"</span>, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        chain.doFilter(req, res);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>url을 분석해서 /health이거나, ico, js 확장자인 경우에 로깅하지 않게 세팅했다.<br>저 정규표현식에 매칭되지 않는 url만 로깅하겠단 뜻이다.  </p>
+<p>실제로 남은 access log를 보면 health check url이나 favicon.ico 등의 로그는 남아있지 않는다.  </p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2018/07/22/spring-boot-2-log/" data-id="cjvclppid00wep04qfzgni2j7" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2018/07/22/spring-boot-2-log/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>(이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, clone 재정의는 주의해서 진행해라 | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Java">
+    
+    <meta name="description" content="Object 클래스는 인스턴스가 생성 가능한 Concrete class이지만 기본적으로 상속해서 사용하도록 설계됐다고 한다.(그 이유는 모르겠지만… 그걸 찾으려면 또 이 장의 범위를 넘어서니 나중에 찾아보자.)따라서 final이 아닌 메서드(equals, hashCode, toString, clone, finalize는)는 모두 메서드 오버라이딩을 염두하">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, clone 재정의는 주의해서 진행해라">
+<meta property="og:url" content="https://perfectacle.github.io/2018/12/16/effective-java-ch03-item13-clone-method/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="Object 클래스는 인스턴스가 생성 가능한 Concrete class이지만 기본적으로 상속해서 사용하도록 설계됐다고 한다.(그 이유는 모르겠지만… 그걸 찾으려면 또 이 장의 범위를 넘어서니 나중에 찾아보자.)따라서 final이 아닌 메서드(equals, hashCode, toString, clone, finalize는)는 모두 메서드 오버라이딩을 염두하">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2018/12/16/effective-java-ch03-item13-clone-method/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.250Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, clone 재정의는 주의해서 진행해라">
+<meta name="twitter:description" content="Object 클래스는 인스턴스가 생성 가능한 Concrete class이지만 기본적으로 상속해서 사용하도록 설계됐다고 한다.(그 이유는 모르겠지만… 그걸 찾으려면 또 이 장의 범위를 넘어서니 나중에 찾아보자.)따라서 final이 아닌 메서드(equals, hashCode, toString, clone, finalize는)는 모두 메서드 오버라이딩을 염두하">
+<meta name="twitter:image" content="https://perfectacle.github.io/2018/12/16/effective-java-ch03-item13-clone-method/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2018/12/16/effective-java-ch03-item13-clone-method/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Note/">Note</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Note/Java/">Java</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-effective-java-ch03-item13-clone-method" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        (이펙티브 자바 3판) 3장 - 모든 객체의 공통 메서드, clone 재정의는 주의해서 진행해라
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2018/12/16/effective-java-ch03-item13-clone-method/" class="article-date">
+            <time datetime="2018-12-16T12:50:10.000Z" itemprop="datePublished">2018-12-16</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Java/">Java</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumb.png" alt=""></p>
+<p>Object 클래스는 인스턴스가 생성 가능한 Concrete class이지만 기본적으로 상속해서 사용하도록 설계됐다고 한다.<br>(그 이유는 모르겠지만… 그걸 찾으려면 또 이 장의 범위를 넘어서니 나중에 찾아보자.)<br>따라서 final이 아닌 메서드(<a href="/2018/11/26/effective-java-ch03-item10-equals-method">equals</a>, <a href="/2018/12/03/effective-java-ch03-item11-hashCode-method">hashCode</a>, toString, clone, finalize는)는 모두 메서드 오버라이딩을 염두하고 설계된 메서드이다.<br>따라서 해당 메서드를 오버라이딩 할 때는 각 메서드마다 지켜야할 규칙들이 존재한다.<br>이 규칙을 지키지 않았을 때 뻑나는 경우가 있다.<br>일반적인 클래스들(Collection Framework 등등)은 이러한 규칙들은 지켰겠지~ 하고 작성된 코드들이 많다.<br>따라서 위와 같은 규칙을 지키지 않은 채 오버라이딩을 한 클래스를 사용하면 제대로 동작하지 않을 가능성이 존재한다.</p>
+<h2 id="믹스인-인터페이스"><a href="#믹스인-인터페이스" class="headerlink" title="믹스인 인터페이스"></a>믹스인 인터페이스</h2><p>Cloneable이 믹스인 인터페이스라고 책에서 소개하고 있는데 그럼 믹스인 인터페이스는 뭔지부터 살펴보도록 하자.<br>아이템 20: 추상 클래스 보다는 인터페이스를 우선하라(130P)를 보면 다음과 같이 정의하고 있다.  </p>
+<blockquote>
+<p>믹스인이란 클래스가 구현할 수 있는 타입을 말한다.<br>  믹스인을 구현한 클래스에 원래의 ‘주된 타입’ 외에도 특정 선택적 행위를 제공한다고 선언하는 효과를 준다.</p>
+</blockquote>
+<p>간단하게 말하서 믹스인 == 클래스가 구현할 수 있는 <strong>타입(클래스, 함수, 인터페이스 등등)</strong>이다.<br>예를 들어서 <code>Comparable</code>이란 인터페이스를 토대로 살펴보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparable</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(T o)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>그리고 Point라는 클래스가 있다고 생각해보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Point</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(String.format(<span class="string">"x: %d\ny: %d"</span>, x, y));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>그럼 Point의 믹스인(Point라는 클래스가 구현할 수 있는 타입)은 무엇일까?<br>아주 여러가지 믹스인들이 있겠지만 그 중에 하나는 Comparable이라고 말할 수 있다.<br>왜냐하면 아래와 같이 Point 클래스를 Comparable 인터페이스(타입)를 구현한 구현체로 만들 수 있기 때문이다.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Point</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Point</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">int</span> y;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(String.format(<span class="string">"x: %d\ny: %d"</span>, x, y));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(<span class="keyword">final</span> Point o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>클래스가 구현할 수 있는 타입을 왜 믹스인이라고 부르는 걸까?<br>바로 대상 타입(Point)의 주된 기능(점의 위치를 표시, print 메서드)에 선택적 기능(순서를 정함, Comparable)을 <code>혼합(mixed in)</code>한다고 해서 믹스인이라고 부른다.<br>또한 믹스인에는 함수나 클래스 등등의 타입이 있기 때문에 그냥 믹스인이라고 부르면 헷갈리기 때문에 믹스인 성격을 가진 인터페이스를 <code>믹스인 인터페이스</code>라고 부르는 것 같다.  </p>
+<h2 id="Cloneable"><a href="#Cloneable" class="headerlink" title="Cloneable"></a>Cloneable</h2><p>Cloneable 인터페이스는 믹스인 인터페이스이다.<br>하지만 믹스인의 용도를 제대로 사용하지 않고 있다.<br>이유는 Cloneable 인터페이스를 직접 보면 알 수 있다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Cloneable</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>위에서 얘기했던 Comparable과의 차이점이 뭘까?<br>인터페이스만 있을 뿐, 구현해야하는 메서드가 아무것도 없다.<br>믹스인 인터페이스라면 선택적 기능을 제공해야하는데 제공하는 게 아무것도 없다.<br>즉, 구현해봤자 아무짝에 쓸모없는 인터페이스처럼 보인다.<br>그럼 clone 메서드의 위치는 어디일까?<br>바로 쌩뚱맞게도 Object 클래스에 clone 메서드가 있다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@HotSpotIntrinsicCandidate</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">native</span> Object <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException</span>;</span><br></pre></td></tr></table></figure></p>
+<p>원본 메서드가 감춰져있어서 소스코드를 볼 수는 없지만 일단 객체를 복사해주는 메서드 같아 보인다.<br>또 여태까지 살펴봤던 다른 메서드와 달리 protected 메서드이다.<br>따라서 아래와 같이 리플렉션을 쓰지 않는 이상은 오버라이딩한 메서드에 접근할 수 있다는 게 보장되지 않는다.<br>하지만 리플렉션을 사용한다 하더라도 해당 메서드를 오버라이딩 하지 않은 경우에는 NoSuchMethodException 예외를 던지기 때문에 리플렉션으로도 메서드에 접근할 수 있다는 걸 100% 보장할 수 없다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">copyTest</span><span class="params">()</span> <span class="keyword">throws</span> NoSuchMethodException, InvocationTargetException, IllegalAccessException </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var cloneMethod = Point.class.getDeclaredMethod(<span class="string">"clone"</span>);</span><br><span class="line">    cloneMethod.setAccessible(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> var instance = <span class="keyword">new</span> Point();</span><br><span class="line">    <span class="keyword">final</span> var copy = cloneMethod.invoke(instance);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>오버라이딩 할 때 public으로 오버라이딩 할 수 있지만, 실수로라도 protected로 오버라이딩 할 여지가 존재하는 매우 부실한 프로토콜이다.  </p>
+<p>그럼 아무짝에 쓸모 없어보이는 Cloneable 인터페이스는 내비두고, Object 클래스의 clone 메서드를 바로 오버라이딩 하면 될 것 같다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Point</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Point</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> x, <span class="keyword">final</span> <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.x = x;</span><br><span class="line">        <span class="keyword">this</span>.y = y;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 자바 5에 추가된 covariant return typing(공변 반환 타이핑, 리턴 타입이 서브 클래스의 범위 안에 있으면 된다는 내용) 덕분에 </span></span><br><span class="line">    <span class="comment">// 해당 메서드를 사용하는 사용자가 직접 형변환을 할 필요가 사라졌다.  </span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Point <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (Point) <span class="keyword">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>공변성(covariant)과 반공변성(contravariant)에 대해서는 이 글의 주제를 넘어서므로 <a href="https://edykim.com/ko/post/what-is-coercion-and-anticommunism/" rel="external nofollow noopener noreferrer" target="_blank">공변성과 반공변성은 무엇인가?</a>에 들어가서 보면 된다.  </p>
+<p>위 clone 메서드를 보면 public으로 오버라이딩 했고 전부 잘 작성한 것 같은데 컴파일이 안 된다.<br>바로 checked exception인 CloneNotSupportedException이 발생하기 때문이다.<br>이유는 해당 예외 클래스를 보면 나온다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Thrown to indicate that the clone method in class Object has been called to clone an object,</span></span><br><span class="line"><span class="comment"> * but that the object's class does not implement the Cloneable interface.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></p>
+<p>clone 메서드가 호출 됐는데 클래스가 Cloneable 인터페이스를 구현하지 않았을 때 던지는 예외란다.<br>아무런 쓸모도 없어보이던 녀석이 드디어 쓸모가 있어보인다.<br>그럼 위 예외를 없애버리기 위해 Cloneable 인터페이스를 구현해보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Point</span> <span class="keyword">implements</span> <span class="title">Cloneable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Point</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> x, <span class="keyword">final</span> <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.x = x;</span><br><span class="line">        <span class="keyword">this</span>.y = y;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Point <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (Point) <span class="keyword">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Cloneable 인터페이스는 아무런 메서드가 없기 때문에 구현해야할 것도 아무것도 없다.<br>하지만 이럼에도 불구하고 컴파일은 되지 않고, CloneNotSupportedException이 발생한다.<br>따라서 다소 귀찮지만 아래와 같이 처리를 해주어야한다.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Point</span> <span class="keyword">implements</span> <span class="title">Cloneable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Point</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> x, <span class="keyword">final</span> <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.x = x;</span><br><span class="line">        <span class="keyword">this</span>.y = y;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Point <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> (Point) <span class="keyword">super</span>.clone();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> CloneNotSupportedException e) &#123;</span><br><span class="line">            <span class="comment">// Cloneable 인터페이스를 구현한 이상 이 코드는 절대 실행되지 않는다.</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>위와 같은 불편함을 초래하기 때문에 CloneNotSupportedException은 unchecked exception으로 만들었으면 더 좋았을 것 같다.<br>unchecked exception이었다면 Cloneable 인터페이스를 구현하지 않은 경우에는 런타임 에러를 뱉겠지만,<br>checked exception으로 만들어버려서 정상적으로 인터페이스를 구현한 경우에도 모두 불필요한 코드를 추가해야하는 불편함을 감수해야한다.<br>또한 Cloneable 인터페이스는 특정 클래스(Object)의 메서드(clone) 동작 방식을 결정한다는 아주 요상한 방식이니 절대 따라하면 안 되고 따라하기 힘들 것 같다.<br>우리가 위에서 선언한 clone 메서드는 <code>super.clone()</code>라는 코드로 인해 부모 클래스인 Object의 clone메서드의 결과값을 반환하는데<br>그 객체의 필드들을 하나하나 복사한 객체를 반환한다.<br>물론 primitive type만 제대로 복사하는 shallow copy이다.<br>참조 타입은 reference value를 복사하기 때문에 불변 객체가 아닌 이상은 직접 deep copy를 구현해줘야한다.  </p>
+<p>Object.clone() 메서드의 명세서에 적혀있는 규약을 정리해보자면 다음과 같다.  </p>
+<ul>
+<li>x.clone() != x;</li>
+<li>x.clone().getClass() == x</li>
+<li>x.clone().equals(x)</li>
+<li>이 메서드가 반환하는 객체는 super.clone()을 호출해서 얻어야한다.  </li>
+<li>하지만 위 조건이 모두 <strong>필수는 아니다</strong>. 즉, 권장사항일 뿐이며 <strong>선택사항</strong>이다.</li>
+</ul>
+<p>하지만 우리는 <code>super.clone()</code>, 즉 Object 클래스의 clone 메서드를 신뢰하지 못해서 아래와 같이 직접 생성자를 사용해서 객체를 복사한다고 가정해보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Object의 clone 메서드를 호출하는 게 아니므로 CloneNotSupportedException을 던지지 않기 때문에 Cloneable 인터페이스를 구현할 필요가 없다.</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Point</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> y;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Point</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> x, <span class="keyword">final</span> <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.x = x;</span><br><span class="line">        <span class="keyword">this</span>.y = y;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Point <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 좀 더 메서드가 깔끔해진 것 같다.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Point(<span class="keyword">this</span>.x, <span class="keyword">this</span>.y);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 실제로 객체가 잘 복사됐는지 비교하기 위해 equals 메서드를 오버라이딩</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(<span class="keyword">final</span> Object o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span> == o) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (!(o <span class="keyword">instanceof</span> Point)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">final</span> var point = (Point) o;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.x != point.x) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.y != point.y) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>테스트 코드를 통해 객체가 제대로 복사가 됐는지 알아보자.  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testClone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var point = <span class="keyword">new</span> Point(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">    <span class="keyword">final</span> var clone = point.clone();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 내부적으로 동일 연산자를 통해 다른 인스턴스인지 비교 </span></span><br><span class="line">    assertNotSame(point, clone);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 클래스 정보도 똑같다.</span></span><br><span class="line">    assertEquals(point.getClass(), clone.getClass());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 내부적으로 동등 연산자인 equals 메서드를 통해 논리적 동치성을 보장하는지 비교</span></span><br><span class="line">    assertEquals(point, clone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>이번엔 Point 클래스를 상속하는데 super.clone 메서드를 사용하는 클래스가 있다고 가정해보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ColorPoint</span> <span class="keyword">extends</span> <span class="title">Point</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String color;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ColorPoint</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> x, <span class="keyword">final</span> <span class="keyword">int</span> y, <span class="keyword">final</span> String color)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(x, y);</span><br><span class="line">        <span class="keyword">this</span>.color = color;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// java.lang.ClassCastException을 유발한다.</span></span><br><span class="line">        <span class="comment">// super.clone() 메서드로 얻어온 메서드의 반환 타입은 Point 생성자를 통해 생성된 Point 클래스 인스턴스이다. </span></span><br><span class="line">        <span class="comment">// 부모 클래스를 가지고 자식 클래스로 형변환 했을 때 자식 클래스에 필요한 필수 필드들이 들어가있지 않을 가능성이 존재해서</span></span><br><span class="line">        <span class="comment">// 변환된 클래스가 제대로 작동하리란 보장이 없기 때문에 위와 같이 예외를 던지는 게 아닐까?</span></span><br><span class="line">        <span class="comment">// 따라서 형 변환을 할 수 없기 때문에 자식 클래스에서 필드가 추가된 경우에는 제대로 clone 조차 하지 못한다.</span></span><br><span class="line">        <span class="comment">// return (ColorPoint) super.clone();</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.clone();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(<span class="keyword">final</span> Object o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span> == o) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (!(o <span class="keyword">instanceof</span> ColorPoint)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">super</span>.equals(o)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> var colorPoint = (ColorPoint) o;</span><br><span class="line">        <span class="keyword">return</span> Objects.equals(color, colorPoint.color);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>그럼 다시 테스트 클래스를 통해 올바르게 복사가 됐는지 확인해보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">testColorClone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var colorPoint = <span class="keyword">new</span> ColorPoint(<span class="number">1</span>, <span class="number">2</span>, <span class="string">"red"</span>);</span><br><span class="line">    <span class="keyword">final</span> var clone = colorPoint.clone();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 내부적으로 동일 연산자를 통해 다른 인스턴스인지 비교</span></span><br><span class="line">    assertNotSame(colorPoint, clone);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 클래스 정보도 부모의 생성자를 통해서 만들었기 때문에 자식 클래스의 정보를 가지지 못한다.</span></span><br><span class="line">    assertNotEquals(colorPoint.getClass(), clone.getClass());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 내부적으로 동등 연산자인 equals 메서드를 통해 논리적 동치성을 보장하는지 비교하는데 red는 제대로 복사되지 않았음</span></span><br><span class="line">    assertNotEquals(colorPoint, clone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>자식 클래스를 구현할 필요 없는 final 클래스 등등의 경우에는 상관 없겠지만 위와 같은 사유 때문에 웬만하면 Object.clone() 메서드 명세서의 규약은 준수하는 게 좋다.</p>
+<p>그럼 가변 객체가 있을 때는 어떻게 구현해야할까?<br>우선 간단하게 배열을 필드로 가지고 있는 객체를 예로 들어보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Type</span> <span class="keyword">implements</span> <span class="title">Cloneable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> number;</span><br><span class="line">    <span class="keyword">private</span> Type[] children;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Type</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> number, <span class="keyword">final</span> Type[] children)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.number = number;</span><br><span class="line">        <span class="keyword">this</span>.children = children;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getNumber</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setNumber</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> number)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.number = number;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Type[] getChildren() &#123;</span><br><span class="line">        <span class="keyword">return</span> children;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setChildren</span><span class="params">(<span class="keyword">final</span> Type[] children)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.children = children;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Type <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> (Type) <span class="keyword">super</span>.clone();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> CloneNotSupportedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(<span class="keyword">final</span> Object o)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span> == o) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">if</span> (!(o <span class="keyword">instanceof</span> Type)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> var type = (Type) o;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">this</span>.number != type.number) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">if</span>(!Arrays.equals(<span class="keyword">this</span>.children, type.children)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>그럼 clone 메서드가 우리가 생각하는대로 동작하는지 알아보자.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var original = <span class="keyword">new</span> Type(<span class="number">3</span>, <span class="keyword">new</span> Type[]&#123;<span class="keyword">new</span> Type(<span class="number">1</span>, <span class="keyword">null</span>), <span class="keyword">new</span> Type(<span class="number">2</span>, <span class="keyword">null</span>)&#125;);</span><br><span class="line">    <span class="keyword">final</span> var clone = original.clone();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 원본 객체에서 첫 번째 자식을 다른 자식으로 대체</span></span><br><span class="line">    original.getChildren()[<span class="number">0</span>] = <span class="keyword">new</span> Type(<span class="number">4</span>, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// clone과 original이 완전 독립된 객체라면 이 테스트는 통과해선 안 된다.</span></span><br><span class="line">    assertEquals(original, clone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>우리가 의도한 대로 동작하지 않음(둘이 완전히 독립된 객체이길 원함)을 볼 수 있다.<br>그렇다면 우리의 의도대로 동작하게 끔 clone 메서드를 변경해보자.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Type <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> var clone = (Type) <span class="keyword">super</span>.clone();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 배열의 clone 메서드는 공변 반환 타이핑도 제대로 적용했고 unchecked exception인 CloneNotSupportedException도 제대로 처리한 유일한 예라고 책에서 설명하고 있다.</span></span><br><span class="line">        <span class="comment">// 하지만 가변 객체를 참조하는 필드는 final로 선언하라는 용법과는 상반된다.  </span></span><br><span class="line">        <span class="comment">// final로 선언해도 완전 불변 객체를 만드는 것은 아니지만 적어도 레퍼런스 값이 바뀌는 경우는 막을 수 있으니까 final로 선언하라는 용법이 있는 것으로 알고 있는데</span></span><br><span class="line">        <span class="comment">// 이 용법을 사용하면 가변 객체의 clone을 할당할 수 없다.</span></span><br><span class="line">        clone.children = <span class="keyword">this</span>.children.clone();</span><br><span class="line">        <span class="keyword">return</span> clone;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> CloneNotSupportedException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>이렇게 변경했다면 위 테스트는 통과하지 못하고 <code>assertNotEquals(original, clone);</code>와 같이 변경해야 테스트를 통과시킬 수 있고 우리의 의도대로 동작한다.  </p>
+<p>하지만 이마저도 얕은 복사이고 아래의 경우에는 객체의 완벽한 독립을 보장하지 못한다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">test</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> var original = <span class="keyword">new</span> Type(<span class="number">3</span>, <span class="keyword">new</span> Type[]&#123;<span class="keyword">new</span> Type(<span class="number">1</span>, <span class="keyword">null</span>), <span class="keyword">new</span> Type(<span class="number">2</span>, <span class="keyword">null</span>)&#125;);</span><br><span class="line">    <span class="keyword">final</span> var clone = original.clone();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 자식을 재할당하는 게 아니라 자식의 필드를 변경</span></span><br><span class="line">    original.getChildren()[<span class="number">0</span>].setNumber(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// clone과 original이 완전 독립된 객체라면 이 테스트는 통과해선 안 된다.</span></span><br><span class="line">    assertEquals(original, clone);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>아래와 같이 재귀를 통해 깊은 복사를 하면 우리가 원하는 문제를 해결할 수 있다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Type <span class="title">clone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> var clone = (Type) <span class="keyword">super</span>.clone();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 배열의 clone 메서드는 공변 반환 타이핑도 제대로 적용했고 unchecked exception인 CloneNotSupportedException도 제대로 처리한 유일한 예라고 책에서 설명하고 있다.</span></span><br><span class="line">        clone.children = childrenDeepCopy(clone.children);</span><br><span class="line">        <span class="keyword">return</span> clone;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> CloneNotSupportedException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> Type[] childrenDeepCopy(<span class="keyword">final</span> Type[] parent) &#123;</span><br><span class="line">    <span class="keyword">final</span> var shallowClone = parent.clone();</span><br><span class="line">    <span class="keyword">return</span> Arrays.stream(shallowClone)</span><br><span class="line">                 .map(origin -&gt; <span class="keyword">new</span> Type(origin.number, origin.hasChildren() ? childrenDeepCopy(origin.children) : <span class="keyword">null</span>))</span><br><span class="line">                 .toArray(Type[]::<span class="keyword">new</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">hasChildren</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> children != <span class="keyword">null</span> &amp;&amp; children.length != <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>하지만 재귀 함수의 단점은 자식의 깊이가 깊을 수록 재귀 호출을 통해 스택 프레임을 사용하기 때문에 스택 오버플로우를 유발할 수도 있다는 점이다.<br>따라서 깊은 복사는 반복을 통해 풀 수 있다면 반복으로 푸는 것이 좋다.  </p>
+<p>또한 상속용으로 설계된 부모 클래스에서 clone을 재정의할 경우, 해당 메서드에서는 다른 재정의 가능한 메서드를 호출하면 안 된다.<br>이유는 자식 클래스에서 clone을 재정의 했을 경우 연쇄적으로 <code>super.clone();</code>을 호출하기 때문에 부모의 clone 메서드를 호출하게 된다.<br>그 과정에서 부모의 clone 메서드에서 재정의 가능한 어떤 메서드를 호출한다면 부모 클래스의 메서드를 호출하는 게 아니라 자식 클래스에서 재정의한 메서드를 호출하기 때문이다.<br>정확하게 어떻게 예를 들어야할지 모르겠다… (다소 억지스러운 것들 밖에 안 떠올라서…)</p>
+<p>위와 같은 오동작을 불러일으킬 수 있기 때문인지 책(84P)에서는 상속해서 쓰기 위한 클래스 설계 방식 두 가지<br>(재정의 할 수 있는 메서드들을 내부적으로 어떻게 이용하는지 문서로 남긴 클래스,<br>내부 동작 과정 중간에 끼어들 수 있는 hook을 잘 선별하여 protected 메서드 형태로 공개한 클래스)<br>에서도 Cloneable 구현 자체를 하지 말라고 하고 있다.<br>clone 메서드를 깊은 복사까지 구현만 해놓고 Cloneable 인터페이스는 구현하지 않아서 하위 클래스에게 Cloneable 구현 여부를 선택하게 끔 하거나,<br>아래와 같이 clone 메서드를 재정의하는데 하위 클래스에서 재정의하지 못하게 하는 것이다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Type <span class="title">clone</span><span class="params">()</span> <span class="keyword">throws</span> CloneNotSupportedException </span>&#123;</span><br><span class="line">    <span class="comment">// 자식 클래스에서는 super.clone()을 통해 clone 메서드를 재정의 하니까 무조건 부모 클래스의 clone 메서드를 호출하게 돼있다.</span></span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> CloneNotSupportedException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>또한 clone 메서드는 동기화(멀티 쓰레드로 돌아가는 환경에서 공유 자원에 대해 일관성 유지)도 고려돼있지 않기 때문에 동기화도 적절히 해줘야한다.</p>
+<p>이러한 허술한 메커니즘 기반인 clone 보다는 아래와 같은 방법 중 하나를 추천한다.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 복사 생성자</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Type</span><span class="params">(<span class="keyword">final</span> Type type)</span> </span>&#123; ... &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 복사 팩터리 (복사 생성자를 모방한 정적 팩터리)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Type <span class="title">newInstance</span><span class="params">(<span class="keyword">final</span> Type type)</span> </span>&#123; ... &#125;</span><br></pre></td></tr></table></figure></p>
+<p>위와 같은 방법을 쓰면 허술한 메커니즘 뿐만 아니라 불필요한 checked exception 처리, final 필드 용법, 형변환 등등에서 자유로워 질 수 있다.<br>또한 인자로 해당 클래스가 구현한 인터페이스 타입도 받을 수 있기 때문에 원본 클래스의 타입에 얽매이지 않고 사용할 수도 있다는 장점이 존재한다.   </p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2018/12/16/effective-java-ch03-item13-clone-method/" data-id="cjvclpq1h014mp04q24p0ze5z" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2018/12/16/effective-java-ch03-item13-clone-method/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>

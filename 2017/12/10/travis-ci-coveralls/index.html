@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    
+    <title>travis-ci와 coveralls를 이용하여 좀 더 안전하게 협업하기 | 오늘도 끄적끄적</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Travis CI,Coveralls">
+    
+    <meta name="description" content="이 글은 Typescript + TSLint + Mocha + Chai + ts-node + NYC로 모던한 프론트 엔드 테스트 환경 구축하기,rollup.js를 통해 모듈 번들링하기에서 이어지는 내용이며,   여러 주제를 다루다보니 깊게 다루지는 않고 각각이 무엇을 하는 것인지만 간단하게 설명과 예제를 곁들여 진행하고 있습니다.또한 예제 진행은 In">
+<meta name="keywords" content="Travis CI,Coveralls">
+<meta property="og:type" content="article">
+<meta property="og:title" content="travis-ci와 coveralls를 이용하여 좀 더 안전하게 협업하기">
+<meta property="og:url" content="https://perfectacle.github.io/2017/12/10/travis-ci-coveralls/index.html">
+<meta property="og:site_name" content="오늘도 끄적끄적">
+<meta property="og:description" content="이 글은 Typescript + TSLint + Mocha + Chai + ts-node + NYC로 모던한 프론트 엔드 테스트 환경 구축하기,rollup.js를 통해 모듈 번들링하기에서 이어지는 내용이며,   여러 주제를 다루다보니 깊게 다루지는 않고 각각이 무엇을 하는 것인지만 간단하게 설명과 예제를 곁들여 진행하고 있습니다.또한 예제 진행은 In">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://perfectacle.github.io/2017/12/10/travis-ci-coveralls/thumb.png">
+<meta property="og:updated_time" content="2019-03-10T07:22:48.566Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="travis-ci와 coveralls를 이용하여 좀 더 안전하게 협업하기">
+<meta name="twitter:description" content="이 글은 Typescript + TSLint + Mocha + Chai + ts-node + NYC로 모던한 프론트 엔드 테스트 환경 구축하기,rollup.js를 통해 모듈 번들링하기에서 이어지는 내용이며,   여러 주제를 다루다보니 깊게 다루지는 않고 각각이 무엇을 하는 것인지만 간단하게 설명과 예제를 곁들여 진행하고 있습니다.또한 예제 진행은 In">
+<meta name="twitter:image" content="https://perfectacle.github.io/2017/12/10/travis-ci-coveralls/thumb.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="오늘도 끄적끄적" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.png">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/titillium-web/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-87795455-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+
+
+    <link rel="canonical" href="https://perfectacle.github.io/2017/12/10/travis-ci-coveralls/">
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-3881550906962162",
+        enable_page_level_ads: true
+      });
+    </script>
+</head>
+</html></head>
+<body>
+<div id="wrap">
+    <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/">
+                            <img src="/css/images/logo.png" class="logo" alt="로고"><br>
+                            <span class="txt-title">오늘도 끄적끄적</span>
+                        </a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/">Back-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/DB/">DB</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Back-end/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/">Front-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Babel/">Babel</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/React/">React</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Front-end/Webpack/">Webpack</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/">Middle-end</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/DevOps/">DevOps</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Network/">Network</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Pattern/">Pattern</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/TDD/">TDD</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/Web-Server/">Web Server</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/git/">git</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Middle-end/자료구조/">자료구조</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/">Note</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Dev/">Dev</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Spring-Boot/">Spring Boot</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/Troubleshooting/">Troubleshooting</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Note/삽질/">삽질</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/">Programming</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ASM/">ASM</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/C-C/">C/C++</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/ECMAScript/">ECMAScript</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Node-js/">Node.js</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Programming/Spring/">Spring</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/">기타</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/등등/">등등</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/음악/">음악</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/자작/">자작</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/기타/잡동사니/">잡동사니</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item">
+                                    <a class="main-nav-list-link" href="/about">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="검색">
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="검색어를 입력하세요...">
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '포스트',
+            PAGES: 'Pages',
+            CATEGORIES: '카테고리',
+            TAGS: '태그',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+    <div class="container">
+        <div class="main-body container-inner">
+            
+            
+            <section id="main">
+                <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Middle-end/">Middle-end</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/Middle-end/DevOps/">DevOps</a>
+    </h1>
+</div>
+                <div class="main-body-content">
+                    <article id="post-travis-ci-coveralls" class="article article-single article-type-post" itemscope="" itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        travis-ci와 coveralls를 이용하여 좀 더 안전하게 협업하기
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                
+    <div class="article-date">
+        <a href="/2017/12/10/travis-ci-coveralls/" class="article-date">
+            <time datetime="2017-12-10T12:21:07.000Z" itemprop="datePublished">2017-12-10</time>
+        </a>
+    </div>
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Coveralls/">Coveralls</a>, <a class="tag-link" href="/tags/Travis-CI/">Travis CI</a>
+    </div>
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="thumb.png" alt="">  </p>
+<p>이 글은 <a href="/2017/12/10/ts-node-mocha-chai">Typescript + TSLint + Mocha + Chai + ts-node + NYC로 모던한 프론트 엔드 테스트 환경 구축하기</a>,<br><a href="/2017/12/10/bundle-with-rollup">rollup.js를 통해 모듈 번들링하기</a>에서 이어지는 내용이며,  </p>
+<p>여러 주제를 다루다보니 깊게 다루지는 않고 각각이 무엇을 하는 것인지만 간단하게 설명과 예제를 곁들여 진행하고 있습니다.<br>또한 예제 진행은 <a href="https://www.jetbrains.com/idea/" rel="external nofollow noopener noreferrer" target="_blank">IntelliJ</a>를 통해 진행했습니다.<br><a href="https://www.jetbrains.com/webstorm/" rel="external nofollow noopener noreferrer" target="_blank">WebStorm</a>으로 진행해도 상관 없고, <a href="https://code.visualstudio.com/" rel="external nofollow noopener noreferrer" target="_blank">VS Code</a>와 진행하면 더 짱짱맨일지도 모르겠습니다.  </p>
+<p>각 단계 별 깃헙 저장소 브랜치를 제공하고 있고, 이 포스트의 최종 결과물은 <a href="https://github.com/perfectacle/front-test-setting" rel="external nofollow noopener noreferrer" target="_blank">front-test-setting 저장소</a>에서 확인 가능합니다.</p>
+<h2 id="CI-Continuous-Integration"><a href="#CI-Continuous-Integration" class="headerlink" title="CI(Continuous Integration)"></a>CI(Continuous Integration)</h2><p>지속적인 통합이라고 직역이 되는데 그냥 뭔소린지 모르겠으니 영어의 느낌을 그대로 갖고 있는 게 좋은 것 같다.<br>CI는 <code>빌드, 테스트, 배포 등등의 잡다구레한 일을 자동화 해주는 도구</code> 정도로 알고 있다.<br>우리는 여기서 빌드와 테스트만 자동화 해볼 예정이다.  </p>
+<h3 id="Travis-CI"><a href="#Travis-CI" class="headerlink" title="Travis CI"></a><a href="https://travis-ci.org/" rel="external nofollow noopener noreferrer" target="_blank">Travis CI</a></h3><p>유사품으로 <a href="https://jenkins-ci.org/" rel="external nofollow noopener noreferrer" target="_blank">젠킨스</a>라는 게 있는데 이거는 별도의 CI 서버를 구축해야해서 사내에서 많이 쓰고,<br>Travis CI를 사용하면 별도의 서버를 구축하지 않고 바로 사용이 가능하기 때문에 오픈소스 진영에서 많이 사용한다.<br>그럼 이 CI를 왜 써야할까…?  </p>
+<ol>
+<li>일단 내가 테스트 코드 매번 돌리기 귀찮음…(푸시하면 알아서 Travis CI가 돌고 결과를 알려줌.)  </li>
+<li>풀리퀘스트 받을 때 남이 내 코드를 어떤 식으로 깔아뭉갰을지 모르므로 테스트가 통과됐으면 내 코드에 대한 안전성도 보장됨.  </li>
+</ol>
+<p>여러가지 이유가 있겠지만 나는 주로 위 이유 때문에 Travis CI를 사용했다.<br><img src="travis-ci01.png" alt="홈페이지로 가서 sign in with github을 누르고 로그인 해주자."></p>
+<p><img src="travis-ci02.png" alt="Travis CI가 요청하는 권한들을 승인해주자."></p>
+<p><img src="travis-ci03.png" alt="이런 화면이 나오면..."></p>
+<p><img src="travis-ci04.png" alt="우측 상단의 프로필 - Accounts를 눌러주자."></p>
+<p><img src="travis-ci05.png" alt="그리고 Sync Account를 한 번 해주자."></p>
+<p><img src="travis-ci06.png" alt="그럼 우리의 저장소가 보이게 된다.">  </p>
+<p><img src="travis-ci07.png" alt="원하는 저장소를 on 해주고, 톱니바퀴를 눌러보자."></p>
+<p><img src="travis-ci08.png" alt="어떨 때 빌드할 것인지 cronjob 등등의 설정이 가능하다."></p>
+<p>그리고 travis ci에 대한 설정 파일도 만들어줘야한다.<br>우선 우리의 코드는 자바스크립트이기 때문에 Node.js 위에서 돌리면 된다.<br>.travis.yml 파일을 만들고 아래와 같이 설정해주면 된다.<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">language:</span> <span class="string">node_js</span></span><br><span class="line"><span class="attr">node_js:</span></span><br><span class="line"><span class="bullet">  -</span> <span class="string">"node"</span></span><br><span class="line"><span class="bullet">  -</span> <span class="string">"lts/*"</span></span><br></pre></td></tr></table></figure></p>
+<p>각 버전에 대한 자세한 설명은 <a href="https://docs.travis-ci.com/user/languages/javascript-with-nodejs/#Specifying-Node.js-versions" rel="external nofollow noopener noreferrer" target="_blank">Specifying-Node.js-versions</a>을 참고하면 된다.  </p>
+<p><img src="travis-ci09.png" alt="깃헙 저장소에 push를 하게 되면 travis ci가 자동으로 돌게 된다."></p>
+<p><img src="travis-ci10.png" alt="노란 아이콘을 누르고 들어오면 빌드에 대한 상세한 상황을 볼 수 있다.">  </p>
+<p><img src="travis-ci11.png" alt="모든 빌드를 성공하면 Build Passing이란 간지나는 뱃지가 생성된다.">  </p>
+<p><img src="travis-ci12.png" alt="배지를 클릭하면 배지를 달 수 있는 각종 양식을 제공한다."></p>
+<p><img src="travis-ci13.png" alt="풀리퀘를 날려도 알아서 Travis CI가 돈다.">  </p>
+<p>따라서 빌드가 성공하지 않은 풀리퀘는 적어도 확인해 볼 것도 없이 반려하면 되는 풀리퀘가 되는 것이다.<br>(가끔 노드 버전에 따라 xx 맞게 설치도 실패하는 경우도 많아서 100% 신뢰할 만한 건 아니다.)</p>
+<h2 id="Coveralls"><a href="#Coveralls" class="headerlink" title="Coveralls"></a><a href="http://coveralls.io/" rel="external nofollow noopener noreferrer" target="_blank">Coveralls</a></h2><p>NYC(Istanbul)은 로컬에서 테스트 커버리지를 측정하는 도구였다.<br>Coveralls는 깃헙 저장소와 연계해서 NYC로 측정한 테스트 커버리지를 알려준다.  </p>
+<p><img src="coveralls01.png" alt="우리는 돈이 없으니 Get Started For Free를 눌러주자."></p>
+<p><img src="coveralls02.png" alt="깃헙을 쓰니까 깃헙 저장소로 가입하자."></p>
+<p><img src="coveralls03.png" alt="coveralls의 권한을 승인해주자.">  </p>
+<p><img src="coveralls04.png" alt="그리고 나서 Add some repos를 눌러서 저장소를 추가해주자.">  </p>
+<p><img src="coveralls05.png" alt="Sync repo를 눌러서 한 번 싱크를 맞춰주자.">  </p>
+<p><img src="coveralls06.png" alt="원하는 저장소를 ON 해주자.">  </p>
+<p><img src="coveralls07.png" alt="그럼 이제 Deatils 버튼이 생기는데 클릭해보자.">  </p>
+<p><img src="coveralls08.png" alt="private 저장소를 위한 coveralls 설정"><br>우리 저장소는 public이라 해당 설정을 할 필요가 없지만 로컬에서 테스트 커버리지에 대한 결과도 coveralls로 전송하려면 위 과정을 진행해야한다.<br>그리고 repo_token의 경우에는 저장소에 접근 가능한 토큰이므로 절대 외부로 공개해서는 안 된다.  </p>
+<p>우선 coveralls를 설치하자.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i -S coveralls</span><br></pre></td></tr></table></figure></p>
+<p>그리고 프로젝트 디렉토리에 .coveralls.yml 파일을 만들자.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch .coveralls.yml</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">service_name:</span> <span class="string">travis-pro</span></span><br><span class="line"><span class="attr">repo_token:</span> <span class="string">&#123;token&#125;</span></span><br></pre></td></tr></table></figure>
+<p>해당 파일은 토큰을 가지고 있기 때문에 어디에도 공개해서는 안 되는 정보기 때문에 꼭 .gitignore에 등록해두자.  </p>
+<p>그리고 nyc의 테스트 커버리지의 정보를 전송하기 위해 package.json에 coveralls 스크립트를 추가하자.  </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"coveralls"</span>: <span class="string">"nyc report --reporter=text-lcov | coveralls"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>npm test</code>를 때리고 <code>npm run coveralls</code>를 때리고 나면 coveralls로 해당 테스트 커버리지 정보가 전송된다.  </p>
+<p><img src="coveralls09.png" alt="coveralls로 로컬에서 측정한 테스트 커버리지가 잘 전송됐다.">  </p>
+<p><img src="coveralls10.png" alt="해당 빌드를 눌러보면 자세한 정보를 볼 수 있다.">  </p>
+<p>이제 Travis CI와 Coveralls를 연계해 볼 차례이다.<br>설정은 간단하게 .travis.yml에 아래 코드만 추가해주면 된다.<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">after_success:</span></span><br><span class="line"><span class="bullet">  -</span> <span class="string">npm</span> <span class="string">run</span> <span class="string">coveralls</span></span><br></pre></td></tr></table></figure></p>
+<p>빌드가 성공하면 테스트 커버리지를 coveralls로 전송하는 스크립트만 추가하면 된다.  </p>
+<p>이제 푸시/풀리퀘를 날려도 coveralls가 자동으로 테스트 커버리지를 측정한다.  </p>
+<p><img src="coveralls11.png" alt="이제 풀리퀘를 날리면 간지나게 coveralls가 붙게 된다."></p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>Typescript, TSLint, Mocha, Chai, ts-node, nyc, rollup, Travis CI, Coveralls 등 다양한 주제를 다루려다보니<br>포스팅 시간도 길었고 내용도 루즈해졌고, 깊이도 거의 없다 싶이 해서 아쉽긴 한 포스트입니다.<br>하지만 뭔가 이제 오픈소스나 작업 환경을 좀 더 간지나게 세팅할 수 있다는 것에 뿌듯하긴 한데…<br>이런 게 설레발 주도 개발인가 싶기도 하네요… ㅎㅎ</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://perfectacle.github.io/2017/12/10/travis-ci-coveralls/" data-id="cjvclpp8y008lp04q7rlq9w4c" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+
+                </div>
+            </section>
+            
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2019 양권성</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+    
+    
+    <script>
+    var disqus_shortname = 'exobud';
+    
+    
+    var disqus_url = 'https://perfectacle.github.io/2017/12/10/travis-ci-coveralls/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+</div>
+</body>
+</html>
