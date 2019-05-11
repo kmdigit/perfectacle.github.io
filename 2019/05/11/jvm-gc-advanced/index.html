@@ -20,7 +20,7 @@
 <meta property="og:description" content="들어가기에 앞서이 글은 이일웅 님께서 번역하신 자바 최적화란 책을 읽던 도중 공부한 내용을 정리한 글입니다.절대 해당 책의 홍보는 아니며 좋은 책을 써준 사람과 번역해주신 분께 진심으로 감사하는 마음에 썼습니다.   Mark and Sweep AlgorithmBasic편에서는 간단하게 Young/Old Generation과 Mark and Sweep 알고">
 <meta property="og:locale" content="ko">
 <meta property="og:image" content="https://perfectacle.github.io/2019/05/11/jvm-gc-advanced/thumb.jpeg">
-<meta property="og:updated_time" content="2019-05-11T07:05:47.144Z">
+<meta property="og:updated_time" content="2019-05-11T07:14:31.789Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(JVM) Garbage Collection Advanced">
 <meta name="twitter:description" content="들어가기에 앞서이 글은 이일웅 님께서 번역하신 자바 최적화란 책을 읽던 도중 공부한 내용을 정리한 글입니다.절대 해당 책의 홍보는 아니며 좋은 책을 써준 사람과 번역해주신 분께 진심으로 감사하는 마음에 썼습니다.   Mark and Sweep AlgorithmBasic편에서는 간단하게 Young/Old Generation과 Mark and Sweep 알고">
@@ -258,7 +258,7 @@ ga('send', 'pageview');
 <li>단편화로 인해 CMF가 발생하지 않도록 연속된 빈 블록들을 하나로 뭉친다.</li>
 </ol>
 <p>하지만 Sweeper는 어플리케이션 쓰레드와 동시에 작동하므로 쓰레드가 적절히 동기화되지 않는 한 새로 할당된 블록이 잘못 수집될 가능성이 존재한다.<br>따라서 Sweeper 쓰레드는 프리 리스트를 잠근 후에 작업한다.</p>
-<h3 id="G1-GC-Garbage-First-GC"><a href="#G1-GC-Garbage-First-GC" class="headerlink" title="G1 GC(Garbage First GC)"></a>G1 GC(Garbage First GC)</h3><p>G1 GC는 자바 6에 실험적으로 등장하여 자바 8u40 이후부터 쓸만큼의 성능 및 안정성을 발휘하기 시작했고, <strong>자바 9부터 기본 GC</strong>로 채택됐다. (자바 12가 나온 현재도 기본 GC이다.)</p>
+<h3 id="G1-GC-Garbage-First-GC"><a href="#G1-GC-Garbage-First-GC" class="headerlink" title="G1 GC(Garbage First GC)"></a>G1 GC(Garbage First GC)</h3><p>G1 GC는 자바 6에 실험적으로 등장하여 자바 8u40 이후부터 쓸만큼의 성능 및 안정성을 발휘하기 시작했고, <strong>자바 9부터 기본 GC</strong>로 채택됐다. (자바 12가 나온 현재도 기본 GC이다.)<br>G1 GC는 처음부터 CMS를 대체할 목적으로 설계되었는데 CMS GC를 사용중인데 아무런 문제가 없는데 성급하게 바꾸는 행위는 하지 않는 게 좋다.<br>굳이 바꾸지 않아도 바꾸는 건 안정성을 떨어뜨리는 행위이며 조금이라도 처리율을 높이고 싶어서 올리고 싶다면 충분한 테스트를 거친 이후에 하자.</p>
 <p><img src="g1-gc-01.png" alt="G1 GC는 Young(Eden/Survivor) Generation 및 Old Generation이 존재하는데 각 Generation이 연속된 메모리 공간일 필요가 없다는 게 큰 차이점이다. (물론 힙 메모리 자체로 봤을 때는 각 Region은 연속된 메모리 공간에 할당된다.)"><br>즉, Survivor 영역도 기존에는 2개였는데 G1 GC에서는 그러한 개념도 사라졌다.<br>또한 거대한 객체(Humongous Object)를 저장하는 ‘거대 영역(Humongous Region)’이라는 특수한 영역도 존재한다.(Humongous Object는 Old Generation에 바로 할당된다.)<br>Humongous Object라고 식별하는 기준은 리전 사이즈의 50%를 넘는 객체면 된다.   </p>
 <p>G1 GC는 처음부터 CMS를 대체할 목적으로 중단 시간이 짧은 수집기로 설계했기 때문에 아래와 같은 특징이 있다.    </p>
 <ol>
@@ -304,7 +304,7 @@ ga('send', 'pageview');
 <li>회귀 테스트(정확히 뭔지 모르겠음)<br>변경된 코드 때문에 메모리 할당률이 급격히 달라지지 않았나 확인할 때 유용하다고 한다.</li>
 </ul>
 <p>혹시나 사용하고 싶다면 <code>-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC</code> 옵션을 주자.</p>
-<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>또한 작성자의 역량 부족으로 인해 <a href="https://wiki.openjdk.java.net/display/zgc/Main" rel="external nofollow noopener noreferrer" target="_blank">Z GC</a>에 대해서는 다루지 못했습니다.<br>또한 Hotspot VM 계열의 GC만 다루었습니다. (제가 OpenJDK만 사용하고 있고, 다 다루기에는 이해하기도 힘들기도 하고 많기도 해서 ㅠㅠ…)<br>혹시나 다른 VM 계열의 GC(셰난도아(Shenandoah), C4, IBM J9)가 궁금하신 분은 이일웅 님께서 번역하신 <a href="https://book.naver.com/bookdb/book_detail.nhn?bid=14796595" rel="external nofollow noopener noreferrer" target="_blank">자바 최적화</a>란 책을 참고하시면 좋을 것 같습니다.<br>다시 한 번 거듭 말씀드리지만 절대 해당 책의 홍보는 아니며 좋은 책을 써준 사람과 번역해주신 분께 진심으로 감사하는 마음에 썼습니다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>은총알은 없는 것 같습니다.<br>모든 GC에는 각자 장단점이 있으니 충분하고 검증된 테스트를 통해 본인의 상황에 맞는 GC를 고르는 역량을 길러야합니다. (이러고 작성자는 무조건 G1 GC를 디폴트로 쓰고 있습니다 ㅠㅠ)<br>또한 작성자의 역량 부족으로 인해 <a href="https://wiki.openjdk.java.net/display/zgc/Main" rel="external nofollow noopener noreferrer" target="_blank">Z GC</a>에 대해서는 다루지 못했습니다.<br>또한 Hotspot VM 계열의 GC만 다루었습니다. (제가 OpenJDK만 사용하고 있고, 다 다루기에는 이해하기도 힘들기도 하고 많기도 해서 ㅠㅠ…)<br>혹시나 다른 VM 계열의 GC(셰난도아(Shenandoah), C4, IBM J9)가 궁금하신 분은 이일웅 님께서 번역하신 <a href="https://book.naver.com/bookdb/book_detail.nhn?bid=14796595" rel="external nofollow noopener noreferrer" target="_blank">자바 최적화</a>란 책을 참고하시면 좋을 것 같습니다.<br>다시 한 번 거듭 말씀드리지만 절대 해당 책의 홍보는 아니며 좋은 책을 써준 사람과 번역해주신 분께 진심으로 감사하는 마음에 썼습니다.</p>
 <h2 id="참고-링크"><a href="#참고-링크" class="headerlink" title="참고 링크"></a>참고 링크</h2><ul>
 <li><a href="https://plumbr.io/handbook/garbage-collection-algorithms-implementations/concurrent-mark-and-sweep" rel="external nofollow noopener noreferrer" target="_blank">Concurrent Mark and Sweep | Plumbr</a>  </li>
 <li><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/cms.html" rel="external nofollow noopener noreferrer" target="_blank">Concurrent Mark Sweep (CMS) Collector - Oracle</a>  </li>
@@ -323,7 +323,7 @@ ga('send', 'pageview');
 
 
 
-    <a data-url="https://perfectacle.github.io/2019/05/11/jvm-gc-advanced/" data-id="cjvj61k0y015bx94qcrm30s6u" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+    <a data-url="https://perfectacle.github.io/2019/05/11/jvm-gc-advanced/" data-id="cjvj6ckov0178du4qs2hx7ftp" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
