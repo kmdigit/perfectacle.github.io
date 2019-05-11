@@ -20,7 +20,7 @@
 <meta property="og:description" content="읽기 전 주의사항(그림을 보는 법)그림을 그리다보니 Stack에 있는 동그라미 모양과 힙 메모리에 있는 동그라미 모양이 동일한 그림들이 많이 있습니다.이건 둘이 동일한 메모리를 의미하는 게 아니라 그냥 스택에서 힙을 참조한다는 걸 그린 건데,사실 둘의 모양을 다르게 그려야하는데 아무 생각없이 복붙해서 그리다보니 이렇게 그리게 되었고…되돌리기에는 너무">
 <meta property="og:locale" content="ko">
 <meta property="og:image" content="https://perfectacle.github.io/2019/05/07/jvm-gc-basic/thumb.png">
-<meta property="og:updated_time" content="2019-05-10T23:02:39.292Z">
+<meta property="og:updated_time" content="2019-05-11T07:23:16.178Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(JVM) Garbage Collection Basic">
 <meta name="twitter:description" content="읽기 전 주의사항(그림을 보는 법)그림을 그리다보니 Stack에 있는 동그라미 모양과 힙 메모리에 있는 동그라미 모양이 동일한 그림들이 많이 있습니다.이건 둘이 동일한 메모리를 의미하는 게 아니라 그냥 스택에서 힙을 참조한다는 걸 그린 건데,사실 둘의 모양을 다르게 그려야하는데 아무 생각없이 복붙해서 그리다보니 이렇게 그리게 되었고…되돌리기에는 너무">
@@ -265,6 +265,7 @@ ga('send', 'pageview');
 <li>Hotspot VM은 할당된 메모리 가장 마지막의 다음 영역을 가리켜 연속된 빈 공간에 효율적으로 빠르게 할당하는 bump-the-pointer라는 기술을 사용했다.</li>
 <li>Hotspot VM은 멀티 스레드 환경에서 객체를 할당할 때 스레드 간의 경합 등등의 문제를 줄이고자 TLAB(Thread Local Allocation Buffer)를 사용했다.<br>Eden Space를 여러 버퍼로 나누어 각 어플리케이션 스레드에게 할당함으로써 자기 자신이 사용해야 할 버퍼를 바로 찾게되고, 리소스를 공유해서 생기는 문제를 없애버렸다.<br>만약 본인에게 할당된 TLAB가 부족할 경우에는 크기를 동적으로 조정한다.</li>
 </ul>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>해당 글을 읽고 <a href="/2019/05/11/jvm-gc-advanced/">Garbage Collection Advanced</a> 편을 읽어보시면 GC에 대해 더 깊게 이해하실 수 있을 겁니다 :)</p>
 <h2 id="참조-링크"><a href="#참조-링크" class="headerlink" title="참조 링크"></a>참조 링크</h2><ul>
 <li><a href="https://d2.naver.com/helloworld/1329" rel="external nofollow noopener noreferrer" target="_blank">Naver D2 - Java Garbage Collection</a>  </li>
 <li><a href="https://d2.naver.com/helloworld/1230" rel="external nofollow noopener noreferrer" target="_blank">Naver D2 - JVM Internal</a>  </li>
@@ -286,7 +287,7 @@ ga('send', 'pageview');
 
 
 
-    <a data-url="https://perfectacle.github.io/2019/05/07/jvm-gc-basic/" data-id="cjvj6ckon0176du4qfv4ro3nw" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+    <a data-url="https://perfectacle.github.io/2019/05/07/jvm-gc-basic/" data-id="cjvj6nqrr016xl64qzsnxka9d" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
