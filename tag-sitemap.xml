@@ -192,14 +192,14 @@
     </url>
 
     <url>
-        <loc>https://perfectacle.github.io/tags/%EB%B0%98%EB%B3%B5%EB%AC%B8/</loc>
+        <loc>https://perfectacle.github.io/tags/%EB%B0%B0%EC%97%B4/</loc>
         <lastmod>2019-03-10T07:22:47.923Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>https://perfectacle.github.io/tags/%EB%B0%B0%EC%97%B4/</loc>
+        <loc>https://perfectacle.github.io/tags/%EB%B0%98%EB%B3%B5%EB%AC%B8/</loc>
         <lastmod>2019-03-10T07:22:47.923Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -1488,21 +1488,21 @@
 
     <url>
         <loc>https://perfectacle.github.io/tags/Troubleshooting/</loc>
-        <lastmod>2019-05-28T18:07:35.681Z</lastmod>
+        <lastmod>2019-05-28T18:10:25.197Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://perfectacle.github.io/tags/Redis/</loc>
-        <lastmod>2019-05-28T18:07:35.681Z</lastmod>
+        <lastmod>2019-05-28T18:10:25.197Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
         <loc>https://perfectacle.github.io/tags/Monitoring/</loc>
-        <lastmod>2019-05-28T18:07:35.681Z</lastmod>
+        <lastmod>2019-05-28T18:10:25.197Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

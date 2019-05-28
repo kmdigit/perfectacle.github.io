@@ -20,7 +20,7 @@
 <meta property="og:description" content="사건의 발단사내에서 사용하는 어드민(이하 어드민 A)/외부에서 사용하는 어드민(이하 어드민 B)이 사망하는 사례가 속출하였다.그 시점은 내가 새롭게 서버를 옮긴 이후부터 발생했다.내가 서버를 옮긴 것과 이 일이 관련이 없다고 생각했지만,우선 내가 서버를 옮긴 이후에 발생한 사건이기도 해서 부검을 통해 사인을 밝혀내는 게 우선이었다. 왜 사망했나123org">
 <meta property="og:locale" content="ko">
 <meta property="og:image" content="https://perfectacle.github.io/2019/05/29/redis-monitoring/thumb.png">
-<meta property="og:updated_time" content="2019-05-28T18:07:35.681Z">
+<meta property="og:updated_time" content="2019-05-28T18:10:25.197Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="(Troubleshooting) 레디스 사망일기">
 <meta name="twitter:description" content="사건의 발단사내에서 사용하는 어드민(이하 어드민 A)/외부에서 사용하는 어드민(이하 어드민 B)이 사망하는 사례가 속출하였다.그 시점은 내가 새롭게 서버를 옮긴 이후부터 발생했다.내가 서버를 옮긴 것과 이 일이 관련이 없다고 생각했지만,우선 내가 서버를 옮긴 이후에 발생한 사건이기도 해서 부검을 통해 사인을 밝혀내는 게 우선이었다. 왜 사망했나123org">
@@ -224,7 +224,7 @@ ga('send', 'pageview');
 <p><img src="legacy-monitoring-2.png" alt="그래프가 쭉쭉 떨어지는 걸 봐서 잘 해결된 것 같다."></p>
 <h2 id="진짜-진짜로-죽은-이유"><a href="#진짜-진짜로-죽은-이유" class="headerlink" title="진짜 진짜로 죽은 이유"></a>진짜 진짜로 죽은 이유</h2><p>레디스 A와 같이 그래프가 현상유지만 됐으면 별 문제가 되지 않는다.<br>램은 1GB이지만, 실제로 사용량은 100MB도 되지 않았으므로 전혀 문제될 게 없다.<br>문제는 레디스 A가 아닌 레디스 B였다.<br>레디스 B는 어드민 B(외부에서 사용하는 어드민)이 사용하는 레디스이다.<br>해당 프로젝트는 세션의 만료기간을 Integer.MAX_VALUE(2³¹ − 1 = 2,147,483,647)로 잡아놓았다.<br>나는 해당 프로젝트의 개발에 참여하지 않아 잘 모르겠는데 아마 외부에서 사용하는 사람들이라면 매번 로그인하는 걸 번거롭게 생각해서 직접 요구사항이 들어오지 않았을까 싶다.<br><img src="integer_max_value_to_year.png" alt="무려 68년동안이나 세션이 유지된다.">  </p>
 <p>거의 평생동안 쓰레기 세션이 만들어진 채로 계속 유지가 된 거다.<br><img src="forever-session-monitoring.png" alt="그 결과 500mb가 넘는 쓰레기 세션들이 만들어지고 있었다."><br>1GB 장비에서 500mb가 넘는 메모리는 엄청난 장애를 동반할 수 있다.<br>계속 유지되다가 버티지 못하고 레디스가 뻗고, 해당 레디스를 사용하는 서버도 뻗고, 다른 레디스 및 서버에도 영향을 미친 것으로 보인다.  </p>
-<p><img src="forever-session-garbage.png" alt=""><br>헬스 체크 엔드포인트를 변경한 이후에는 새로운 세션은 거의 만들어지지 않고 계속 현상 유지만 된 것이다.<br>500MB가 넘는 쓰레기 세션을 68년이 넘는 시간동안이나 끌고 가야하는 문제에 직면하게 되었다.<br>일단 로그인이 풀리겠지만 쓰레기 세션이 너무 많은 관계로 한 번 털고 가고, 세션의 만료기간도 좀 줄이기로 하였다. (레디스 재시작)  </p>
+<p><img src="forever-session-garbage.png" alt=""><br>헬스 체크 엔드포인트를 변경한 이후에는 새로운 세션은 거의 만들어지지 않고 계속 현상 유지만 된 것이다.<br>500MB가 넘는 쓰레기 세션을 68년이 넘는 시간동안이나 끌고 가야하는 문제에 직면하게 되었다.<br>일단 로그인이 풀리겠지만 쓰레기 세션이 너무 많은 관계로 한 번 털고 가고(레디스 재시작), 세션의 만료기간도 좀 줄이기로 하였다.   </p>
 <p><img src="after-garbage-collection.png" alt=""><br>쓰레기 세션을 한 번 털고 나니 메모리 사용량이 확 줄어들었다.<br>우선 평일에 트래픽을 한 번 맞아보고 제대로 된 메모리 사용량을 봐야겠다.</p>
 
         </div>
@@ -233,7 +233,7 @@ ga('send', 'pageview');
 
 
 
-    <a data-url="https://perfectacle.github.io/2019/05/29/redis-monitoring/" data-id="cjw8463hg016rii4qo0pus7nj" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
+    <a data-url="https://perfectacle.github.io/2019/05/29/redis-monitoring/" data-id="cjw849stt0173mz4q8hj0oc5a" class="article-share-link"><i class="fa fa-share"></i>공유하기</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
