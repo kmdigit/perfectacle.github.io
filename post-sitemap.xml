@@ -8,6 +8,14 @@
     </url>
 
     <url>
+        <loc>https://perfectacle.github.io/2019/05/29/redis-monitoring/</loc>
+        <lastmod>2019-05-28T18:01:53.067Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://perfectacle.github.io/2019/05/07/jvm-gc-basic/</loc>
         <lastmod>2019-05-11T07:23:16.178Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -120,7 +128,7 @@
     </url>
 
     <url>
-        <loc>https://perfectacle.github.io/2017/06/18/what-is-node-js/</loc>
+        <loc>https://perfectacle.github.io/2017/03/12/webpack2-tree-shaking/</loc>
         <lastmod>2019-03-10T07:22:48.690Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -128,7 +136,7 @@
     </url>
 
     <url>
-        <loc>https://perfectacle.github.io/2017/03/12/webpack2-tree-shaking/</loc>
+        <loc>https://perfectacle.github.io/2017/06/18/what-is-node-js/</loc>
         <lastmod>2019-03-10T07:22:48.690Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
